@@ -1,4 +1,4 @@
-package fastgo
+package constants
 
 const (
 	ParsedModel = "ParsedModel"
