@@ -1,5 +1,5 @@
 package constants
 
 const (
-	ParsedModel = "ParsedModel"
+	Model = "Model"
 )

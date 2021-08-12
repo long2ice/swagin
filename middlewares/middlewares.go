@@ -9,10 +9,10 @@ import (
 func Validate(model interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if err := c.ShouldBind(model); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		c.Set(constants.ParsedModel, model)
+		c.Set(constants.Model, model)
 		c.Next()
 	}
 }
