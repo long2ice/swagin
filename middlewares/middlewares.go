@@ -6,9 +6,9 @@ import (
 	"net/http"
 )
 
-func Validate(model interface{}) gin.HandlerFunc {
+func BindModel(model interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := c.ShouldBind(model); err != nil {
+		if err := c.ShouldBindRequest(model); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}

@@ -7,9 +7,13 @@ import (
 
 type Router struct {
 	Handlers    *list.List
+	Path        string
+	Method      string
 	Summary     string
 	Description string
 	Deprecated  bool
+	Tags        []string
+	Model       interface{}
 }
 
 func (router *Router) GetHandlers() []gin.HandlerFunc {

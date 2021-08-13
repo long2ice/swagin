@@ -14,10 +14,19 @@ func Handlers(handlers ...gin.HandlerFunc) Option {
 		}
 	}
 }
-
+func Tags(tags ...string) Option {
+	return func(router *Router) {
+		router.Tags = tags
+	}
+}
 func Summary(summary string) Option {
 	return func(router *Router) {
 		router.Summary = summary
+	}
+}
+func Description(description string) Option {
+	return func(router *Router) {
+		router.Description = description
 	}
 }
 func Deprecated() Option {
@@ -27,6 +36,7 @@ func Deprecated() Option {
 }
 func Model(model interface{}) Option {
 	return func(router *Router) {
-		router.Handlers.PushFront(middlewares.Validate(model))
+		router.Model = model
+		router.Handlers.PushFront(middlewares.BindModel(model))
 	}
 }
