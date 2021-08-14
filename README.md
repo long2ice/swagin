@@ -93,7 +93,7 @@ var query = router.Default(
 )
 ```
 
-## Start APP
+### Start APP
 
 Finally, start the application with routes defined.
 
