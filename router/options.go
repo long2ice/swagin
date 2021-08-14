@@ -50,3 +50,8 @@ func Exclude() Option {
 		router.Exclude = true
 	}
 }
+func ContentType(contentType string) Option {
+	return func(router *Router) {
+		router.ContentType = contentType
+	}
+}

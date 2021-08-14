@@ -6,7 +6,20 @@ import (
 	"github.com/long2ice/fastgo/router"
 	"net/http"
 	"reflect"
+	"regexp"
 	"time"
+)
+
+const (
+	DEFAULT     = "default"
+	BINDING     = "binding"
+	DESCRIPTION = "description"
+	QUERY       = "query"
+	FORM        = "form"
+	URI         = "uri"
+	HEADER      = "header"
+	COOKIE      = "cookie"
+	BODY        = "body"
 )
 
 type Swagger struct {
@@ -66,7 +79,7 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 	}
 	return schema
 }
-func (swagger *Swagger) getRequestBodyByModel(model interface{}) *openapi3.RequestBodyRef {
+func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType string) *openapi3.RequestBodyRef {
 	body := &openapi3.RequestBodyRef{
 		Value: openapi3.NewRequestBody(),
 	}
@@ -82,7 +95,12 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}) *openapi3.Reque
 		if err != nil {
 			panic(err)
 		}
-		formTag, err := tags.Get(FORM)
+		var tag *structtag.Tag
+		if contentType == "application/x-www-form-urlencoded" {
+			tag, err = tags.Get(FORM)
+		} else {
+			tag, err = tags.Get(BODY)
+		}
 		if err != nil {
 			continue
 		}
@@ -93,17 +111,20 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}) *openapi3.Reque
 		bindingTag, err := tags.Get(BINDING)
 		if err == nil {
 			if bindingTag.Name == "required" {
-				schema.Required = append(schema.Required, formTag.Name)
+				schema.Required = append(schema.Required, tag.Name)
 			}
 		}
 		defaultTag, err := tags.Get(DEFAULT)
 		if err == nil {
 			fieldSchema.Default = defaultTag.Name
 		}
-		schema.Properties[formTag.Name] = openapi3.NewSchemaRef("", fieldSchema)
+		schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
 	}
 	body.Value.Required = true
-	body.Value.Content = openapi3.NewContentWithJSONSchema(schema)
+	if contentType == "" {
+		contentType = "application/json"
+	}
+	body.Value.Content = openapi3.NewContentWithSchema(schema, []string{contentType})
 	return body
 }
 func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Parameters {
@@ -124,10 +145,10 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 			parameter.In = openapi3.ParameterInQuery
 			parameter.Name = queryTag.Name
 		}
-		pathTag, err := tags.Get(PATH)
+		uriTag, err := tags.Get(URI)
 		if err == nil {
 			parameter.In = openapi3.ParameterInPath
-			parameter.Name = pathTag.Name
+			parameter.Name = uriTag.Name
 		}
 		headerTag, err := tags.Get(HEADER)
 		if err == nil {
@@ -153,15 +174,21 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 		defaultTag, err := tags.Get(DEFAULT)
 		if err == nil {
 			schema.Default = defaultTag.Name
-			parameter.Schema = &openapi3.SchemaRef{
-				Value: schema,
-			}
+		}
+		parameter.Schema = &openapi3.SchemaRef{
+			Value: schema,
 		}
 		parameters = append(parameters, &openapi3.ParameterRef{
 			Value: parameter,
 		})
 	}
 	return parameters
+}
+
+// /:id -> /{id}
+func (swagger *Swagger) fixPath(path string) string {
+	reg := regexp.MustCompile("/:([0-9a-zA-Z]+)")
+	return reg.ReplaceAllString(path, "/{${1}}")
 }
 func (swagger *Swagger) paths() openapi3.Paths {
 	paths := make(openapi3.Paths)
@@ -181,7 +208,7 @@ func (swagger *Swagger) paths() openapi3.Paths {
 				Responses:   openapi3.NewResponses(),
 				Parameters:  swagger.getParametersByModel(model),
 			}
-			requestBody := swagger.getRequestBodyByModel(model)
+			requestBody := swagger.getRequestBodyByModel(model, r.ContentType)
 			if method == http.MethodGet {
 				pathItem.Get = operation
 			} else if method == http.MethodPost {
@@ -206,7 +233,7 @@ func (swagger *Swagger) paths() openapi3.Paths {
 				pathItem.Trace = operation
 			}
 		}
-		paths[path] = pathItem
+		paths[swagger.fixPath(path)] = pathItem
 	}
 	return paths
 }

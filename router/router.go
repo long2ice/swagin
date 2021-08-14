@@ -14,6 +14,7 @@ type Router struct {
 	Summary     string
 	Description string
 	Deprecated  bool
+	ContentType string
 	Tags        []string
 	API         IAPI
 	OperationID string

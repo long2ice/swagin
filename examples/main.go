@@ -14,9 +14,11 @@ func main() {
 		AllowCredentials: true,
 	}))
 	app.GET("/query", query)
+	app.GET("/query/:id", queryPath)
 	app.DELETE("/query", query)
-	app.POST("/form", form)
-	app.PUT("/form", form)
+	app.POST("/body", body)
+	app.POST("/form/encoded", formEncode)
+	app.PUT("/form", body)
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
