@@ -2,12 +2,17 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/long2ice/fastgo/middlewares"
 )
 
 type Option func(router *Router)
 
-func Handlers(handlers ...gin.HandlerFunc) Option {
+func API(api IAPI) Option {
+	return func(router *Router) {
+		router.API = api
+		router.Handlers.PushBack(BindModel(api))
+	}
+}
+func Middlewares(handlers ...gin.HandlerFunc) Option {
 	return func(router *Router) {
 		for _, handler := range handlers {
 			router.Handlers.PushBack(handler)
@@ -34,9 +39,14 @@ func Deprecated() Option {
 		router.Deprecated = true
 	}
 }
-func Model(model interface{}) Option {
+func OperationID(ID string) Option {
 	return func(router *Router) {
-		router.Model = model
-		router.Handlers.PushFront(middlewares.BindModel(model))
+		router.OperationID = ID
+	}
+}
+
+func Exclude() Option {
+	return func(router *Router) {
+		router.Exclude = true
 	}
 }

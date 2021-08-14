@@ -3,6 +3,8 @@ package router
 import (
 	"container/list"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"reflect"
 )
 
 type Router struct {
@@ -13,7 +15,29 @@ type Router struct {
 	Description string
 	Deprecated  bool
 	Tags        []string
-	Model       interface{}
+	API         IAPI
+	OperationID string
+	Exclude     bool
+}
+
+func BindModel(api IAPI) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		model := api.NewModel()
+		if err := c.ShouldBindRequest(model); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		getType := reflect.TypeOf(api).Elem()
+		getValue := reflect.ValueOf(api).Elem()
+		for i := 0; i < getType.NumField(); i++ {
+			field := getType.Field(i)
+			value := getValue.Field(i)
+			if field.Type == reflect.TypeOf(model) {
+				value.Set(reflect.ValueOf(model))
+			}
+		}
+		c.Next()
+	}
 }
 
 func (router *Router) GetHandlers() []gin.HandlerFunc {
@@ -21,6 +45,7 @@ func (router *Router) GetHandlers() []gin.HandlerFunc {
 	for h := router.Handlers.Front(); h != nil; h = h.Next() {
 		handlers = append(handlers, h.Value.(gin.HandlerFunc))
 	}
+	handlers = append(handlers, router.API.Handler)
 	return handlers
 }
 func Default(options ...Option) *Router {

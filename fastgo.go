@@ -95,6 +95,7 @@ func (g *FastGo) init() {
 			"title":       g.Swagger.Title,
 		})
 	})
+	g.Swagger.BuildOpenAPI()
 }
 
 func (g *FastGo) Run(addr ...string) error {
