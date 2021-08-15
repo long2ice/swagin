@@ -18,4 +18,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/gin-gonic/gin => /Users/long2ice/GolandProjects/gin
+replace github.com/gin-gonic/gin => github.com/long2ice/gin v1.7.2-develop-alpha.2
