@@ -2,15 +2,16 @@
 
 ## Introduction
 
-`FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs.
+`FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs with
+configuration.
 
 ## Why I build this project?
 
-Before I have used [FastAPI](https://github.com/tiangolo/fastapi), which gives me a good experience in api docs
+Previous I have used [FastAPI](https://github.com/tiangolo/fastapi), which gives me a great experience in api docs
 generation, because nobody like writing api docs.
 
-Now I use `Gin` but I can't found anything like that, I found [swag](https://github.com/swaggo/swag) but write docs with
-comment is so stupid. So there is `FastGo`.
+Now I use `Gin` but I can't found anything like that, I found [swag](https://github.com/swaggo/swag) but which write
+docs with comment is so stupid. So there is `FastGo`.
 
 ## Installation
 
@@ -20,7 +21,10 @@ go get -u github.com/long2ice/fastgo
 
 ## Online Demo
 
-You can see online demo at <https://fastgo.long2ice.cn>
+You can see online demo at <https://fastgo.long2ice.cn/docs> or <https://fastgo.long2ice.cn/redoc>.
+
+![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/docs.png)
+![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/redoc.png)
 
 ## Usage
 
@@ -85,8 +89,8 @@ Then write router with some docs configuration and api.
 ```go
 package examples
 
-var query = router.Default(
-	router.API(&TestQuery{}),
+var query = router.New(
+  router.API(&TestQuery{}),
 	router.Summary("Test Query"),
 	router.Description("Test Query Model"),
 	router.Tags("Test"),
@@ -117,15 +121,21 @@ func main() {
 	app.DELETE("/query", query)
 	app.POST("/form", form)
 	app.PUT("/form", form)
-	if err := app.Run(); err != nil {
-		panic(err)
-	}
+  if err := app.Run(); err != nil {
+    panic(err)
+  }
 }
 
 ```
 
 That's all! Now you can visit <http://127.0.0.1:8080/docs> or <http://127.0.0.1:8080/redoc> to see the api docs. Have
 fun!
+
+## ThanksTo
+
+- [kin-openapi](https://github.com/getkin/kin-openapi), OpenAPI 3.0 implementation for Go (parsing, converting,
+  validation, and more).
+- [Gin](https://github.com/gin-gonic/gin), an HTTP web framework written in Go (Golang).
 
 ## License
 

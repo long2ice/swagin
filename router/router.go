@@ -49,7 +49,7 @@ func (router *Router) GetHandlers() []gin.HandlerFunc {
 	handlers = append(handlers, router.API.Handler)
 	return handlers
 }
-func Default(options ...Option) *Router {
+func New(options ...Option) *Router {
 	r := &Router{
 		Handlers: list.New(),
 	}
