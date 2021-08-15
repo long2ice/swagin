@@ -41,14 +41,13 @@ func (t *TestForm) Handler(c *gin.Context) {
 	c.JSON(http.StatusOK, t.Model)
 }
 
-type TestBody struct {
-	Model *BodyModel
+type TestNoModel struct {
 }
 
-func (t *TestBody) NewModel() interface{} {
-	return &BodyModel{}
+func (t *TestNoModel) NewModel() interface{} {
+	return nil
 }
 
-func (t *TestBody) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t.Model)
+func (t *TestNoModel) Handler(c *gin.Context) {
+	c.JSON(http.StatusOK, nil)
 }

@@ -15,6 +15,7 @@ func main() {
 	}))
 	app.GET("/query", query)
 	app.GET("/query/:id", queryPath)
+	app.GET("/noModel", noModel)
 	app.DELETE("/query", query)
 	app.POST("/body", body)
 	app.POST("/form/encoded", formEncode)

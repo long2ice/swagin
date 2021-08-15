@@ -3,6 +3,7 @@ package swagger
 import (
 	"github.com/fatih/structtag"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/long2ice/fastgo/router"
 	"net/http"
 	"reflect"
@@ -19,7 +20,6 @@ const (
 	URI         = "uri"
 	HEADER      = "header"
 	COOKIE      = "cookie"
-	BODY        = "body"
 )
 
 type Swagger struct {
@@ -83,6 +83,9 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	body := &openapi3.RequestBodyRef{
 		Value: openapi3.NewRequestBody(),
 	}
+	if model == nil {
+		return body
+	}
 	schema := openapi3.NewObjectSchema()
 	schema.Properties = openapi3.Schemas{}
 	type_ := reflect.TypeOf(model).Elem()
@@ -95,12 +98,7 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 		if err != nil {
 			panic(err)
 		}
-		var tag *structtag.Tag
-		if contentType == "application/x-www-form-urlencoded" {
-			tag, err = tags.Get(FORM)
-		} else {
-			tag, err = tags.Get(BODY)
-		}
+		tag, err := tags.Get(FORM)
 		if err != nil {
 			continue
 		}
@@ -122,13 +120,16 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	}
 	body.Value.Required = true
 	if contentType == "" {
-		contentType = "application/json"
+		contentType = binding.MIMEJSON
 	}
 	body.Value.Content = openapi3.NewContentWithSchema(schema, []string{contentType})
 	return body
 }
 func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Parameters {
 	parameters := openapi3.NewParameters()
+	if model == nil {
+		return parameters
+	}
 	type_ := reflect.TypeOf(model).Elem()
 	value_ := reflect.ValueOf(model).Elem()
 	for i := 0; i < type_.NumField(); i++ {

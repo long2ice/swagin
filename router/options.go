@@ -34,6 +34,8 @@ func Description(description string) Option {
 		router.Description = description
 	}
 }
+
+// Deprecated mark api is deprecated
 func Deprecated() Option {
 	return func(router *Router) {
 		router.Deprecated = true
@@ -45,11 +47,14 @@ func OperationID(ID string) Option {
 	}
 }
 
+// Exclude exclude in docs
 func Exclude() Option {
 	return func(router *Router) {
 		router.Exclude = true
 	}
 }
+
+// ContentType Set request contentType
 func ContentType(contentType string) Option {
 	return func(router *Router) {
 		router.ContentType = contentType

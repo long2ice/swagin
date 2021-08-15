@@ -2,8 +2,8 @@
 
 ## Introduction
 
-`FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs with
-configuration.
+`FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs and
+request model validation.
 
 ## Why I build this project?
 
@@ -91,7 +91,7 @@ package examples
 
 var query = router.New(
   router.API(&TestQuery{}),
-	router.Summary("Test Query"),
+  router.Summary("Test Query"),
 	router.Description("Test Query Model"),
 	router.Tags("Test"),
 )
@@ -111,16 +111,16 @@ import (
 
 func main() {
 	app := fastgo.New(NewSwagger())
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"*"},
-		AllowCredentials: true,
-	}))
-	app.GET("/query", query)
-	app.DELETE("/query", query)
-	app.POST("/form", form)
-	app.PUT("/form", form)
+  app.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"*"},
+    AllowMethods:     []string{"*"},
+    AllowHeaders:     []string{"*"},
+    AllowCredentials: true,
+  }))
+  app.GET("/query", query)
+  app.DELETE("/query", query)
+  app.POST("/form", form)
+  app.PUT("/form", form)
   if err := app.Run(); err != nil {
     panic(err)
   }

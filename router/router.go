@@ -3,6 +3,7 @@ package router
 import (
 	"container/list"
 	"github.com/gin-gonic/gin"
+	"github.com/long2ice/fastgo/binding"
 	"net/http"
 	"reflect"
 )
@@ -24,7 +25,12 @@ type Router struct {
 func BindModel(api IAPI) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		model := api.NewModel()
-		if err := c.ShouldBindRequest(model); err != nil {
+		params := make(map[string][]string)
+		for _, v := range c.Params {
+			params[v.Key] = []string{v.Value}
+		}
+
+		if err := binding.Request.Bind(model, c.Request, params); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -35,6 +41,7 @@ func BindModel(api IAPI) gin.HandlerFunc {
 			value := getValue.Field(i)
 			if field.Type == reflect.TypeOf(model) {
 				value.Set(reflect.ValueOf(model))
+				break
 			}
 		}
 		c.Next()
