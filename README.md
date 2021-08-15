@@ -1,5 +1,7 @@
 # Gin + Swagger = FastGo
 
+[![deploy](https://github.com/long2ice/fastgo/actions/workflows/deploy.yml/badge.svg)](https://github.com/long2ice/fastgo/actions/workflows/deploy.yml)
+
 ## Introduction
 
 `FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs and
@@ -92,8 +94,8 @@ package examples
 var query = router.New(
   router.API(&TestQuery{}),
   router.Summary("Test Query"),
-	router.Description("Test Query Model"),
-	router.Tags("Test"),
+  router.Description("Test Query Model"),
+  router.Tags("Test"),
 )
 ```
 
@@ -105,12 +107,12 @@ Finally, start the application with routes defined.
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/long2ice/fastgo"
+  "github.com/gin-contrib/cors"
+  "github.com/long2ice/fastgo"
 )
 
 func main() {
-	app := fastgo.New(NewSwagger())
+  app := fastgo.New(NewSwagger())
   app.Use(cors.New(cors.Config{
     AllowOrigins:     []string{"*"},
     AllowMethods:     []string{"*"},
