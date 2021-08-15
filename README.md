@@ -106,7 +106,7 @@ import (
 )
 
 func main() {
-	app := fastgo.Default(NewSwagger())
+	app := fastgo.New(NewSwagger())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"*"},

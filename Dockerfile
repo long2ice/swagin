@@ -14,7 +14,7 @@ RUN go mod download
 # 将代码复制到容器中
 COPY . .
 # 将我们的代码编译成二进制可执行文件app
-RUN go build -o app .
+RUN go build -o app ./examples
 ###################
 # 接下来创建一个小镜像
 ###################

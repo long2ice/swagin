@@ -1,11 +1,16 @@
 package fastgo
 
 import (
+	"embed"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/router"
 	"github.com/long2ice/fastgo/swagger"
+	"html/template"
 	"net/http"
 )
+
+//go:embed templates/*
+var templates embed.FS
 
 type FastGo struct {
 	*gin.Engine
@@ -13,8 +18,9 @@ type FastGo struct {
 	Routers map[string]map[string]*router.Router
 }
 
-func Default(swagger *swagger.Swagger) *FastGo {
+func New(swagger *swagger.Swagger) *FastGo {
 	f := &FastGo{Engine: gin.Default(), Swagger: swagger, Routers: make(map[string]map[string]*router.Router)}
+	f.SetHTMLTemplate(template.Must(template.ParseFS(templates, "templates/*.html")))
 	swagger.Routers = f.Routers
 	return f
 }
@@ -79,7 +85,6 @@ func (g *FastGo) OPTIONS(path string, router *router.Router) gin.IRoutes {
 }
 
 func (g *FastGo) init() {
-	g.LoadHTMLGlob("templates/*")
 	g.Engine.GET(g.Swagger.OpenAPIUrl, func(c *gin.Context) {
 		c.JSON(http.StatusOK, g.Swagger)
 	})
