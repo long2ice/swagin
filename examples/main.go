@@ -13,10 +13,11 @@ func main() {
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
 	}))
-	app.GET("/query", query)
-	app.GET("/query/:id", queryPath)
+	queryGroup := app.Group("/query", fastgo.Tags("Query"))
+	queryGroup.GET("", query)
+	queryGroup.GET("/:id", queryPath)
+	queryGroup.DELETE("", query)
 	app.GET("/noModel", noModel)
-	app.DELETE("/query", query)
 	app.POST("/body", body)
 	app.POST("/form/encoded", formEncode)
 	app.PUT("/form", body)

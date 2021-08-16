@@ -25,11 +25,18 @@ func New(swagger *swagger.Swagger) *FastGo {
 	return f
 }
 
-func (g *FastGo) Group(path string, handlers ...gin.HandlerFunc) *gin.RouterGroup {
-	return g.Engine.Group(path, handlers...)
+func (g *FastGo) Group(path string, options ...Option) *Group {
+	group := &Group{
+		FastGo: g,
+		Path:   path,
+	}
+	for _, option := range options {
+		option(group)
+	}
+	return group
 }
 
-func (g *FastGo) handle(path string, method string, r *router.Router) gin.IRoutes {
+func (g *FastGo) Handle(path string, method string, r *router.Router) gin.IRoutes {
 	r.Method = method
 	r.Path = path
 	if g.Routers[path] == nil {
@@ -57,31 +64,31 @@ func (g *FastGo) handle(path string, method string, r *router.Router) gin.IRoute
 }
 
 func (g *FastGo) GET(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodGet, router)
+	return g.Handle(path, http.MethodGet, router)
 }
 
 func (g *FastGo) POST(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodPost, router)
+	return g.Handle(path, http.MethodPost, router)
 }
 
 func (g *FastGo) HEAD(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodHead, router)
+	return g.Handle(path, http.MethodHead, router)
 }
 
 func (g *FastGo) PATCH(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodPatch, router)
+	return g.Handle(path, http.MethodPatch, router)
 }
 
 func (g *FastGo) DELETE(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodDelete, router)
+	return g.Handle(path, http.MethodDelete, router)
 }
 
 func (g *FastGo) PUT(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodPut, router)
+	return g.Handle(path, http.MethodPut, router)
 }
 
 func (g *FastGo) OPTIONS(path string, router *router.Router) gin.IRoutes {
-	return g.handle(path, http.MethodOptions, router)
+	return g.Handle(path, http.MethodOptions, router)
 }
 
 func (g *FastGo) init() {

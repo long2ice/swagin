@@ -92,10 +92,10 @@ Then write router with some docs configuration and api.
 package examples
 
 var query = router.New(
-  router.API(&TestQuery{}),
-  router.Summary("Test Query"),
-  router.Description("Test Query Model"),
-  router.Tags("Test"),
+	router.API(&TestQuery{}),
+	router.Summary("Test Query"),
+	router.Description("Test Query Model"),
+	router.Tags("Test"),
 )
 ```
 
@@ -107,27 +107,30 @@ Finally, start the application with routes defined.
 package main
 
 import (
-  "github.com/gin-contrib/cors"
-  "github.com/long2ice/fastgo"
+	"github.com/gin-contrib/cors"
+	"github.com/long2ice/fastgo"
 )
 
 func main() {
-  app := fastgo.New(NewSwagger())
-  app.Use(cors.New(cors.Config{
-    AllowOrigins:     []string{"*"},
-    AllowMethods:     []string{"*"},
-    AllowHeaders:     []string{"*"},
-    AllowCredentials: true,
-  }))
-  app.GET("/query", query)
-  app.DELETE("/query", query)
-  app.POST("/form", form)
-  app.PUT("/form", form)
-  if err := app.Run(); err != nil {
-    panic(err)
-  }
+	app := fastgo.New(NewSwagger())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		AllowCredentials: true,
+	}))
+	queryGroup := app.Group("/query", fastgo.Tags("Query"))
+	queryGroup.GET("", query)
+	queryGroup.GET("/:id", queryPath)
+	queryGroup.DELETE("", query)
+	app.GET("/noModel", noModel)
+	app.POST("/body", body)
+	app.POST("/form/encoded", formEncode)
+	app.PUT("/form", body)
+	if err := app.Run(); err != nil {
+		panic(err)
+	}
 }
-
 ```
 
 That's all! Now you can visit <http://127.0.0.1:8080/docs> or <http://127.0.0.1:8080/redoc> to see the api docs. Have
