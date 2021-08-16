@@ -12,7 +12,7 @@ type Group struct {
 	Path       string
 	Tags       []string
 	Handlers   []gin.HandlerFunc
-	Securities []security.Security
+	Securities []security.ISecurity
 }
 type Option func(*Group)
 
@@ -30,9 +30,10 @@ func Tags(tags ...string) Option {
 	}
 }
 
-func Security(securities ...security.Security) Option {
+func Security(securities ...security.ISecurity) Option {
 	return func(g *Group) {
 		for _, s := range securities {
+			g.Securities = append(g.Securities, s)
 			g.Handlers = append(g.Handlers, s.Authorize)
 		}
 	}

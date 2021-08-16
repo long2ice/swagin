@@ -20,7 +20,7 @@ type Router struct {
 	API         IAPI
 	OperationID string
 	Exclude     bool
-	Securities  []security.Security
+	Securities  []security.ISecurity
 }
 
 func BindModel(api IAPI) gin.HandlerFunc {
@@ -51,8 +51,13 @@ func BindModel(api IAPI) gin.HandlerFunc {
 
 func (router *Router) GetHandlers() []gin.HandlerFunc {
 	var handlers []gin.HandlerFunc
+	for _, s := range router.Securities {
+		handlers = append(handlers, s.Authorize)
+	}
 	for h := router.Handlers.Front(); h != nil; h = h.Next() {
-		handlers = append(handlers, h.Value.(gin.HandlerFunc))
+		if f, ok := h.Value.(gin.HandlerFunc); ok {
+			handlers = append(handlers, f)
+		}
 	}
 	handlers = append(handlers, router.API.Handler)
 	return handlers

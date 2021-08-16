@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/long2ice/fastgo/security"
 	"net/http"
 )
 
@@ -14,6 +16,8 @@ func (t *TestQuery) NewModel() interface{} {
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {
+	user := c.MustGet(security.Credentials).(*security.User)
+	fmt.Println(user)
 	c.JSON(http.StatusOK, t.Model)
 }
 

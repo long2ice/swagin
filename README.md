@@ -92,11 +92,46 @@ Then write router with some docs configuration and api.
 package examples
 
 var query = router.New(
-	router.API(&TestQuery{}),
-	router.Summary("Test Query"),
-	router.Description("Test Query Model"),
-	router.Tags("Test"),
+  router.API(&TestQuery{}),
+  router.Summary("Test Query"),
+  router.Description("Test Query Model"),
+  router.Tags("Test"),
 )
+```
+
+### Security
+
+If you want to project your api with a security policy, you can use security, also they will be shown in swagger docs.
+
+Current there is five kinds of security policies.
+
+- `Basic`
+- `Bearer`
+- `ApiKey`
+- `OpenID`
+- `OAuth2`
+
+```go
+package main
+
+var query = router.New(
+  router.API(&TestQuery{}),
+  router.Summary("Test query"),
+  router.Description("Test query model"),
+  router.Security(&security.Basic{}),
+)
+```
+
+Then you can get the authentication string by `context.MustGet(security.Credentials)` depending on your auth type.
+
+```go
+package main
+
+func (t *TestQuery) Handler(c *gin.Context) {
+  user := c.MustGet(security.Credentials).(*security.User)
+  fmt.Println(user)
+  c.JSON(http.StatusOK, t.Model)
+}
 ```
 
 ### Mount Router
@@ -132,19 +167,22 @@ func main() {
 		AllowMethods:     []string{"*"},
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
-	}))
-	queryGroup := app.Group("/query", fastgo.Tags("Query"))
-	queryGroup.GET("", query)
-	queryGroup.GET("/:id", queryPath)
-	queryGroup.DELETE("", query)
-	app.GET("/noModel", noModel)
-	app.POST("/body", body)
-	formGroup := app.Group("/form", fastgo.Tags("Form"))
-	formGroup.POST("/encoded", formEncode)
-	formGroup.PUT("", body)
-	if err := app.Run(); err != nil {
-		panic(err)
-	}
+    }))
+
+  queryGroup := app.Group("/query", fastgo.Tags("Query"))
+  queryGroup.GET("", query)
+  queryGroup.GET("/:id", queryPath)
+  queryGroup.DELETE("", query)
+
+  formGroup := app.Group("/form", fastgo.Tags("Form"))
+  formGroup.POST("/encoded", formEncode)
+  formGroup.PUT("", body)
+
+  app.GET("/noModel", noModel)
+  app.POST("/body", body)
+  if err := app.Run(); err != nil {
+    panic(err)
+  }
 }
 ```
 

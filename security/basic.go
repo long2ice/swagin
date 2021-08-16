@@ -2,10 +2,12 @@ package security
 
 import (
 	"errors"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 )
 
-type HttpBasic struct {
+type Basic struct {
+	Security
 }
 
 type User struct {
@@ -13,18 +15,23 @@ type User struct {
 	Password string
 }
 
-func (h *HttpBasic) Authorize(c *gin.Context) {
+func (b *Basic) Authorize(c *gin.Context) {
 	username, password, ok := c.Request.BasicAuth()
 	if !ok {
-		h.Callback(c, nil, errors.New("parse authentication error"))
+		b.Callback(c, nil, errors.New("parse authentication error"))
 	} else {
-		h.Callback(c, &User{
+		b.Callback(c, &User{
 			Username: username,
 			Password: password,
 		}, nil)
 	}
-
 }
-func (h *HttpBasic) Callback(c *gin.Context, credentials interface{}, err error) {
-
+func (b *Basic) Provider() string {
+	return BasicAuth
+}
+func (b *Basic) Scheme() *openapi3.SecurityScheme {
+	return &openapi3.SecurityScheme{
+		Type:   "http",
+		Scheme: "basic",
+	}
 }

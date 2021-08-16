@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/long2ice/fastgo/router"
+	"github.com/long2ice/fastgo/security"
 )
 
 var (
@@ -10,6 +11,7 @@ var (
 		router.API(&TestQuery{}),
 		router.Summary("Test query"),
 		router.Description("Test query model"),
+		router.Security(&security.Basic{}),
 	)
 	noModel = router.New(
 		router.API(&TestNoModel{}),

@@ -5,6 +5,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/long2ice/fastgo/router"
+	"github.com/long2ice/fastgo/security"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -43,6 +44,20 @@ func Default(title, description, version string, options ...Option) *Swagger {
 		option(swagger)
 	}
 	return swagger
+}
+func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity) *openapi3.SecurityRequirements {
+	securityRequirements := openapi3.NewSecurityRequirements()
+	for _, s := range securities {
+		provide := s.Provider()
+		swagger.OpenAPI.Components.SecuritySchemes[provide] = &openapi3.SecuritySchemeRef{
+			Value: s.Scheme(),
+		}
+		switch s.(type) {
+		case *security.Basic:
+			securityRequirements.With(openapi3.NewSecurityRequirement().Authenticate(provide))
+		}
+	}
+	return securityRequirements
 }
 func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 	var schema *openapi3.Schema
@@ -191,7 +206,7 @@ func (swagger *Swagger) fixPath(path string) string {
 	reg := regexp.MustCompile("/:([0-9a-zA-Z]+)")
 	return reg.ReplaceAllString(path, "/{${1}}")
 }
-func (swagger *Swagger) paths() openapi3.Paths {
+func (swagger *Swagger) getPaths() openapi3.Paths {
 	paths := make(openapi3.Paths)
 	for path, m := range swagger.Routers {
 		pathItem := &openapi3.PathItem{}
@@ -208,6 +223,7 @@ func (swagger *Swagger) paths() openapi3.Paths {
 				Deprecated:  r.Deprecated,
 				Responses:   openapi3.NewResponses(),
 				Parameters:  swagger.getParametersByModel(model),
+				Security:    swagger.getSecurityRequirements(r.Securities),
 			}
 			requestBody := swagger.getRequestBodyByModel(model, r.ContentType)
 			if method == http.MethodGet {
@@ -239,6 +255,8 @@ func (swagger *Swagger) paths() openapi3.Paths {
 	return paths
 }
 func (swagger *Swagger) BuildOpenAPI() {
+	components := openapi3.NewComponents()
+	components.SecuritySchemes = openapi3.SecuritySchemes{}
 	swagger.OpenAPI = &openapi3.T{
 		OpenAPI: "3.0.0",
 		Info: &openapi3.Info{
@@ -249,9 +267,10 @@ func (swagger *Swagger) BuildOpenAPI() {
 			License:        swagger.License,
 			Version:        swagger.Version,
 		},
-		Paths:   swagger.paths(),
-		Servers: swagger.Servers,
+		Servers:    swagger.Servers,
+		Components: components,
 	}
+	swagger.OpenAPI.Paths = swagger.getPaths()
 }
 func (swagger *Swagger) MarshalJSON() ([]byte, error) {
 

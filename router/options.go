@@ -14,10 +14,10 @@ func API(api IAPI) Option {
 	}
 }
 
-func Security(securities ...security.Security) Option {
+func Security(securities ...security.ISecurity) Option {
 	return func(router *Router) {
 		for _, s := range securities {
-			router.Handlers.PushBack(s.Authorize)
+			router.Securities = append(router.Securities, s)
 		}
 	}
 }
