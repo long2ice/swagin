@@ -19,8 +19,9 @@ func main() {
 	queryGroup.DELETE("", query)
 	app.GET("/noModel", noModel)
 	app.POST("/body", body)
-	app.POST("/form/encoded", formEncode)
-	app.PUT("/form", body)
+	formGroup := app.Group("/form", fastgo.Tags("Form"))
+	formGroup.POST("/encoded", formEncode)
+	formGroup.PUT("", body)
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
