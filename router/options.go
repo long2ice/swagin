@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/long2ice/fastgo/security"
 )
 
 type Option func(router *Router)
@@ -12,7 +13,16 @@ func API(api IAPI) Option {
 		router.Handlers.PushBack(BindModel(api))
 	}
 }
-func Middlewares(handlers ...gin.HandlerFunc) Option {
+
+func Security(securities ...security.Security) Option {
+	return func(router *Router) {
+		for _, s := range securities {
+			router.Handlers.PushBack(s.Authorize)
+		}
+	}
+}
+
+func Handlers(handlers ...gin.HandlerFunc) Option {
 	return func(router *Router) {
 		for _, handler := range handlers {
 			router.Handlers.PushBack(handler)

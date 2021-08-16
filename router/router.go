@@ -3,6 +3,7 @@ package router
 import (
 	"container/list"
 	"github.com/gin-gonic/gin"
+	"github.com/long2ice/fastgo/security"
 	"net/http"
 	"reflect"
 )
@@ -19,6 +20,7 @@ type Router struct {
 	API         IAPI
 	OperationID string
 	Exclude     bool
+	Securities  []security.Security
 }
 
 func BindModel(api IAPI) gin.HandlerFunc {
