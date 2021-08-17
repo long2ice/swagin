@@ -2,6 +2,7 @@ package router
 
 import (
 	"container/list"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/security"
 	"net/http"
@@ -21,6 +22,7 @@ type Router struct {
 	OperationID string
 	Exclude     bool
 	Securities  []security.ISecurity
+	Responses   openapi3.Responses
 }
 
 func BindModel(api IAPI) gin.HandlerFunc {
@@ -64,7 +66,8 @@ func (router *Router) GetHandlers() []gin.HandlerFunc {
 }
 func New(options ...Option) *Router {
 	r := &Router{
-		Handlers: list.New(),
+		Handlers:  list.New(),
+		Responses: openapi3.NewResponses(),
 	}
 	for _, option := range options {
 		option(r)

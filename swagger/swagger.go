@@ -221,7 +221,7 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 				Summary:     r.Summary,
 				Description: r.Description,
 				Deprecated:  r.Deprecated,
-				Responses:   openapi3.NewResponses(),
+				Responses:   r.Responses,
 				Parameters:  swagger.getParametersByModel(model),
 				Security:    swagger.getSecurityRequirements(r.Securities),
 			}
