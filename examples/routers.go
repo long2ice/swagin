@@ -43,4 +43,9 @@ var (
 		router.API(&TestForm{}),
 		router.Summary("Test json body"),
 	)
+	file = router.New(
+		router.API(&TestFile{}),
+		router.Summary("Test file upload"),
+		router.ContentType(binding.MIMEMultipartPOSTForm),
+	)
 )

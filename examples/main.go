@@ -22,6 +22,7 @@ func main() {
 	formGroup := app.Group("/form", fastgo.Tags("Form"))
 	formGroup.POST("/encoded", formEncode)
 	formGroup.PUT("", body)
+	formGroup.POST("/file", file)
 	if err := app.Run(); err != nil {
 		panic(err)
 	}

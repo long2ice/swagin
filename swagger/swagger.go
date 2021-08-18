@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/long2ice/fastgo/router"
 	"github.com/long2ice/fastgo/security"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -38,7 +39,7 @@ type Swagger struct {
 	OpenAPI        *openapi3.T
 }
 
-func Default(title, description, version string, options ...Option) *Swagger {
+func New(title, description, version string, options ...Option) *Swagger {
 	swagger := &Swagger{Title: title, Description: description, Version: version, DocsUrl: "/docs", RedocUrl: "/redoc", OpenAPIUrl: "/openapi.json"}
 	for _, option := range options {
 		option(swagger)
@@ -89,6 +90,9 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 		schema = openapi3.NewBoolSchema()
 	case []byte:
 		schema = openapi3.NewBytesSchema()
+	case *multipart.FileHeader:
+		schema = openapi3.NewStringSchema()
+		schema.Format = "binary"
 	default:
 		schema = openapi3.NewStringSchema()
 	}

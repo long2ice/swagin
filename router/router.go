@@ -28,11 +28,6 @@ type Router struct {
 func BindModel(api IAPI) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		model := api.NewModel()
-		params := make(map[string][]string)
-		for _, v := range c.Params {
-			params[v.Key] = []string{v.Value}
-		}
-
 		if err := c.ShouldBindRequest(model); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

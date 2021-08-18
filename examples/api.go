@@ -55,3 +55,15 @@ func (t *TestNoModel) NewModel() interface{} {
 func (t *TestNoModel) Handler(c *gin.Context) {
 	c.JSON(http.StatusOK, nil)
 }
+
+type TestFile struct {
+	Model *FormFileModel
+}
+
+func (t *TestFile) NewModel() interface{} {
+	return &FormFileModel{}
+}
+
+func (t *TestFile) Handler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"file": t.Model.File.Filename})
+}

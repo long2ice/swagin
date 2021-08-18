@@ -43,10 +43,10 @@ import (
 )
 
 func NewSwagger() *swagger.Swagger {
-	return swagger.Default("FastGo", "Gin + Swagger = FastGo", "0.1.0",
+	return swagger.New("FastGo", "Gin + Swagger = FastGo", "0.1.0",
 		swagger.License(&openapi3.License{
 			Name: "Apache License 2.0",
-			URL:  "https://www.apache.org/licenses/LICENSE-2.0",
+			URL:  "https://github.com/long2ice/fastgo/blob/dev/LICENSE",
 		}),
 		swagger.Contact(&openapi3.Contact{
 			Name:  "long2ice",
