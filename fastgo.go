@@ -2,6 +2,7 @@ package fastgo
 
 import (
 	"embed"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/router"
 	"github.com/long2ice/fastgo/swagger"
@@ -96,15 +97,33 @@ func (g *FastGo) init() {
 		c.JSON(http.StatusOK, g.Swagger)
 	})
 	g.Engine.GET(g.Swagger.DocsUrl, func(c *gin.Context) {
+		options := `{}`
+		if g.Swagger.SwaggerOptions != nil {
+			data, err := json.Marshal(g.Swagger.SwaggerOptions)
+			if err != nil {
+				panic(err)
+			}
+			options = string(data)
+		}
 		c.HTML(http.StatusOK, "swagger.html", gin.H{
-			"openapi_url": g.Swagger.OpenAPIUrl,
-			"title":       g.Swagger.Title,
+			"openapi_url":     g.Swagger.OpenAPIUrl,
+			"title":           g.Swagger.Title,
+			"swagger_options": options,
 		})
 	})
 	g.Engine.GET(g.Swagger.RedocUrl, func(c *gin.Context) {
+		options := `{}`
+		if g.Swagger.RedocOptions != nil {
+			data, err := json.Marshal(g.Swagger.RedocOptions)
+			if err != nil {
+				panic(err)
+			}
+			options = string(data)
+		}
 		c.HTML(http.StatusOK, "redoc.html", gin.H{
-			"openapi_url": g.Swagger.OpenAPIUrl,
-			"title":       g.Swagger.Title,
+			"openapi_url":   g.Swagger.OpenAPIUrl,
+			"title":         g.Swagger.Title,
+			"redoc_options": options,
 		})
 	})
 	g.Swagger.BuildOpenAPI()

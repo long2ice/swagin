@@ -9,12 +9,15 @@
 <body>
 <div id="swagger-ui"></div>
 <script>
+    let options = JSON.parse('{{ .swagger_options }}')
     const ui = SwaggerUIBundle({
         url: "{{ .openapi_url }}",
         dom_id: '#swagger-ui',
         presets: [
             SwaggerUIBundle.presets.apis,
         ],
+        persistAuthorization: true,
+        ...options
     })
 </script>
 </body>

@@ -62,3 +62,13 @@ func License(License *openapi3.License) Option {
 		swagger.License = License
 	}
 }
+func SwaggerOptions(options map[string]interface{}) Option {
+	return func(swagger *Swagger) {
+		swagger.SwaggerOptions = options
+	}
+}
+func RedocOptions(options map[string]interface{}) Option {
+	return func(swagger *Swagger) {
+		swagger.RedocOptions = options
+	}
+}

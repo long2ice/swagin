@@ -37,6 +37,8 @@ type Swagger struct {
 	Contact        *openapi3.Contact
 	License        *openapi3.License
 	OpenAPI        *openapi3.T
+	SwaggerOptions map[string]interface{}
+	RedocOptions   map[string]interface{}
 }
 
 func New(title, description, version string, options ...Option) *Swagger {
