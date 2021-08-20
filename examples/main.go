@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/long2ice/fastgo"
+	"github.com/long2ice/fastgo/security"
 )
 
 func main() {
@@ -17,12 +18,14 @@ func main() {
 	queryGroup.GET("", query)
 	queryGroup.GET("/:id", queryPath)
 	queryGroup.DELETE("", query)
+
 	app.GET("/noModel", noModel)
-	app.POST("/body", body)
-	formGroup := app.Group("/form", fastgo.Tags("Form"))
+
+	formGroup := app.Group("/form", fastgo.Tags("Form"), fastgo.Security(&security.Bearer{}))
 	formGroup.POST("/encoded", formEncode)
 	formGroup.PUT("", body)
 	formGroup.POST("/file", file)
+
 	if err := app.Run(); err != nil {
 		panic(err)
 	}

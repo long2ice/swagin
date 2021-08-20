@@ -34,7 +34,6 @@ func Security(securities ...security.ISecurity) Option {
 	return func(g *Group) {
 		for _, s := range securities {
 			g.Securities = append(g.Securities, s)
-			g.Handlers = append(g.Handlers, s.Authorize)
 		}
 	}
 }
@@ -42,6 +41,7 @@ func Security(securities ...security.ISecurity) Option {
 func (g *Group) Handle(path string, method string, r *router.Router) gin.IRoutes {
 	router.Handlers(g.Handlers...)(r)
 	router.Tags(g.Tags...)(r)
+	router.Security(g.Securities...)(r)
 	return g.FastGo.Handle(g.Path+path, method, r)
 }
 func (g *Group) GET(path string, router *router.Router) gin.IRoutes {

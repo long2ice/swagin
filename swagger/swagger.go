@@ -53,10 +53,7 @@ func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity)
 		swagger.OpenAPI.Components.SecuritySchemes[provide] = &openapi3.SecuritySchemeRef{
 			Value: s.Scheme(),
 		}
-		switch s.(type) {
-		case *security.Basic:
-			securityRequirements.With(openapi3.NewSecurityRequirement().Authenticate(provide))
-		}
+		securityRequirements.With(openapi3.NewSecurityRequirement().Authenticate(provide))
 	}
 	return securityRequirements
 }
@@ -244,8 +241,6 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 				pathItem.Patch = operation
 			} else if method == http.MethodHead {
 				pathItem.Head = operation
-			} else if method == http.MethodPatch {
-				pathItem.Patch = operation
 			} else if method == http.MethodOptions {
 				pathItem.Options = operation
 			} else if method == http.MethodConnect {
