@@ -71,3 +71,17 @@ func (g *Group) PUT(path string, router *router.Router) gin.IRoutes {
 func (g *Group) OPTIONS(path string, router *router.Router) gin.IRoutes {
 	return g.Handle(path, http.MethodOptions, router)
 }
+
+func (g *Group) Group(path string, options ...Option) *Group {
+	group := &Group{
+		FastGo:     g.FastGo,
+		Path:       g.Path + path,
+		Tags:       g.Tags,
+		Handlers:   g.Handlers,
+		Securities: g.Securities,
+	}
+	for _, option := range options {
+		option(group)
+	}
+	return group
+}
