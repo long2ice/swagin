@@ -92,7 +92,7 @@ Then write router with some docs configuration and api.
 package examples
 
 var query = router.New(
-  router.API(&TestQuery{}),
+  &TestQuery{},
   router.Summary("Test Query"),
   router.Description("Test Query Model"),
   router.Tags("Test"),
@@ -115,7 +115,7 @@ Current there is five kinds of security policies.
 package main
 
 var query = router.New(
-  router.API(&TestQuery{}),
+  &TestQuery{},
   router.Summary("Test query"),
   router.Description("Test query model"),
   router.Security(&security.Basic{}),
@@ -161,13 +161,13 @@ import (
 )
 
 func main() {
-	app := fastgo.New(NewSwagger())
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"*"},
-		AllowCredentials: true,
-    }))
+  app := fastgo.New(NewSwagger())
+  app.Use(cors.New(cors.Config{
+    AllowOrigins:     []string{"*"},
+    AllowMethods:     []string{"*"},
+    AllowHeaders:     []string{"*"},
+    AllowCredentials: true,
+  }))
 
   queryGroup := app.Group("/query", fastgo.Tags("Query"))
   queryGroup.GET("", query)
@@ -188,6 +188,14 @@ func main() {
 
 That's all! Now you can visit <http://127.0.0.1:8080/docs> or <http://127.0.0.1:8080/redoc> to see the api docs. Have
 fun!
+
+### Disable Docs
+
+In some cases you may want to disable docs such as in production, just put `nil` to `fastgo.New`.
+
+```go
+app = fastgo.New(nil)
+```
 
 ## ThanksTo
 

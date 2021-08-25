@@ -22,7 +22,9 @@ type FastGo struct {
 func New(swagger *swagger.Swagger) *FastGo {
 	f := &FastGo{Engine: gin.Default(), Swagger: swagger, Routers: make(map[string]map[string]*router.Router)}
 	f.SetHTMLTemplate(template.Must(template.ParseFS(templates, "templates/*.html")))
-	swagger.Routers = f.Routers
+	if swagger != nil {
+		swagger.Routers = f.Routers
+	}
 	return f
 }
 
@@ -93,6 +95,9 @@ func (g *FastGo) OPTIONS(path string, router *router.Router) gin.IRoutes {
 }
 
 func (g *FastGo) init() {
+	if g.Swagger == nil {
+		return
+	}
 	g.Engine.GET(g.Swagger.OpenAPIUrl, func(c *gin.Context) {
 		c.JSON(http.StatusOK, g.Swagger)
 	})
