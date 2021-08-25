@@ -26,7 +26,11 @@ func Handlers(handlers ...gin.HandlerFunc) Option {
 
 func Tags(tags ...string) Option {
 	return func(g *Group) {
-		g.Tags = tags
+		if g.Tags == nil {
+			g.Tags = tags
+		} else {
+			g.Tags = append(g.Tags, tags...)
+		}
 	}
 }
 

@@ -29,7 +29,11 @@ func Handlers(handlers ...gin.HandlerFunc) Option {
 }
 func Tags(tags ...string) Option {
 	return func(router *Router) {
-		router.Tags = tags
+		if router.Tags == nil {
+			router.Tags = tags
+		} else {
+			router.Tags = append(router.Tags, tags...)
+		}
 	}
 }
 func Summary(summary string) Option {
