@@ -92,6 +92,14 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 	case *multipart.FileHeader:
 		schema = openapi3.NewStringSchema()
 		schema.Format = "binary"
+	case []*multipart.FileHeader:
+		schema = openapi3.NewArraySchema()
+		schema.Items = &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type:   "string",
+				Format: "binary",
+			},
+		}
 	default:
 		schema = openapi3.NewStringSchema()
 	}
