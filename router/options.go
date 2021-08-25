@@ -8,13 +8,6 @@ import (
 
 type Option func(router *Router)
 
-func API(api IAPI) Option {
-	return func(router *Router) {
-		router.API = api
-		router.Handlers.PushBack(BindModel(api))
-	}
-}
-
 func Security(securities ...security.ISecurity) Option {
 	return func(router *Router) {
 		for _, s := range securities {

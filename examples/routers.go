@@ -9,7 +9,7 @@ import (
 
 var (
 	query = router.New(
-		router.API(&TestQuery{}),
+		&TestQuery{},
 		router.Summary("Test query"),
 		router.Description("Test query model"),
 		router.Security(&security.Basic{}),
@@ -25,26 +25,26 @@ var (
 		}),
 	)
 	noModel = router.New(
-		router.API(&TestNoModel{}),
+		&TestNoModel{},
 		router.Summary("Test no model"),
 		router.Description("Test no model"),
 	)
 	queryPath = router.New(
-		router.API(&TestQueryPath{}),
+		&TestQueryPath{},
 		router.Summary("Test query path"),
 		router.Description("Test query path model"),
 	)
 	formEncode = router.New(
-		router.API(&TestForm{}),
+		&TestForm{},
 		router.Summary("Test form"),
 		router.ContentType(binding.MIMEPOSTForm),
 	)
 	body = router.New(
-		router.API(&TestForm{}),
+		&TestForm{},
 		router.Summary("Test json body"),
 	)
 	file = router.New(
-		router.API(&TestFile{}),
+		&TestFile{},
 		router.Summary("Test file upload"),
 		router.ContentType(binding.MIMEMultipartPOSTForm),
 	)

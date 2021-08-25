@@ -59,11 +59,14 @@ func (router *Router) GetHandlers() []gin.HandlerFunc {
 	handlers = append(handlers, router.API.Handler)
 	return handlers
 }
-func New(options ...Option) *Router {
+
+func New(api IAPI, options ...Option) *Router {
 	r := &Router{
 		Handlers:  list.New(),
+		API:       api,
 		Responses: openapi3.NewResponses(),
 	}
+	r.Handlers.PushBack(BindModel(api))
 	for _, option := range options {
 		option(r)
 	}
