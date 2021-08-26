@@ -12,8 +12,11 @@ var (
 		router.Summary("Test query"),
 		router.Description("Test query model"),
 		router.Security(&security.Basic{}),
-		router.Responses(map[string]interface{}{
-			"200": QueryModel{},
+		router.Responses(router.Response{
+			"200": router.ResponseItem{
+				Model:       &QueryModel{},
+				Description: "response model description",
+			},
 		}),
 	)
 	noModel = router.New(

@@ -21,7 +21,7 @@ type Router struct {
 	OperationID string
 	Exclude     bool
 	Securities  []security.ISecurity
-	Responses   map[string]interface{}
+	Response    Response
 }
 
 func BindModel(api IAPI) gin.HandlerFunc {
@@ -61,9 +61,9 @@ func (router *Router) GetHandlers() []gin.HandlerFunc {
 
 func New(api IAPI, options ...Option) *Router {
 	r := &Router{
-		Handlers:  list.New(),
-		API:       api,
-		Responses: make(map[string]interface{}),
+		Handlers: list.New(),
+		API:      api,
+		Response: make(Response),
 	}
 	r.Handlers.PushBack(BindModel(api))
 	for _, option := range options {

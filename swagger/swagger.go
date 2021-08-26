@@ -151,14 +151,45 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	body.Value.Content = openapi3.NewContentWithSchema(schema, []string{contentType})
 	return body
 }
-func (swagger *Swagger) getResponses(responses map[string]interface{}) openapi3.Responses {
+func (swagger *Swagger) getResponses(response router.Response) openapi3.Responses {
 	ret := openapi3.NewResponses()
-	for k, v := range responses {
+	for k, v := range response {
+		schema := openapi3.NewObjectSchema()
+		schema.Properties = openapi3.Schemas{}
+		type_ := reflect.TypeOf(v.Model).Elem()
+		value_ := reflect.ValueOf(v.Model).Elem()
+		for i := 0; i < type_.NumField(); i++ {
+			field := type_.Field(i)
+			value := value_.Field(i)
+			fieldSchema := swagger.getSchemaByType(value.Interface())
+			tags, err := structtag.Parse(string(field.Tag))
+			if err != nil {
+				panic(err)
+			}
+			tag, err := tags.Get("json")
+			if err != nil {
+				continue
+			}
+			bindingTag, err := tags.Get(BINDING)
+			if err == nil && bindingTag.Name == "required" {
+				schema.Required = append(schema.Required, tag.Name)
+			}
+			descriptionTag, err := tags.Get(DESCRIPTION)
+			if err == nil {
+				fieldSchema.Description = descriptionTag.Name
+			}
+			defaultTag, err := tags.Get(DEFAULT)
+			if err == nil {
+				fieldSchema.Default = defaultTag.Name
+			}
+			schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
+		}
+		content := openapi3.NewContentWithJSONSchema(schema)
 		ret[k] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
-				Content: openapi3.NewContentWithJSONSchema(&openapi3.Schema{
-					Example: v,
-				}),
+				Description: &v.Description,
+				Content:     content,
+				Headers:     v.Headers,
 			},
 		}
 	}
@@ -245,7 +276,7 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 				Summary:     r.Summary,
 				Description: r.Description,
 				Deprecated:  r.Deprecated,
-				Responses:   swagger.getResponses(r.Responses),
+				Responses:   swagger.getResponses(r.Response),
 				Parameters:  swagger.getParametersByModel(model),
 				Security:    swagger.getSecurityRequirements(r.Securities),
 			}

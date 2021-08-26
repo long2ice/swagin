@@ -14,9 +14,9 @@ func Security(securities ...security.ISecurity) Option {
 		}
 	}
 }
-func Responses(responses map[string]interface{}) Option {
+func Responses(response Response) Option {
 	return func(router *Router) {
-		router.Responses = responses
+		router.Response = response
 	}
 }
 func Handlers(handlers ...gin.HandlerFunc) Option {
