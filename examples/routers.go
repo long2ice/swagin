@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/long2ice/fastgo/router"
 	"github.com/long2ice/fastgo/security"
@@ -13,15 +12,8 @@ var (
 		router.Summary("Test query"),
 		router.Description("Test query model"),
 		router.Security(&security.Basic{}),
-		router.Responses(openapi3.Responses{
-			"200": &openapi3.ResponseRef{
-				Value: &openapi3.Response{
-					Content: openapi3.NewContentWithJSONSchema(&openapi3.Schema{
-						Example:     QueryModel{},
-						Description: "Response model",
-					}),
-				},
-			},
+		router.Responses(map[string]interface{}{
+			"200": QueryModel{},
 		}),
 	)
 	noModel = router.New(

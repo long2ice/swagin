@@ -1,7 +1,6 @@
 package router
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/security"
 )
@@ -15,7 +14,7 @@ func Security(securities ...security.ISecurity) Option {
 		}
 	}
 }
-func Responses(responses openapi3.Responses) Option {
+func Responses(responses map[string]interface{}) Option {
 	return func(router *Router) {
 		router.Responses = responses
 	}

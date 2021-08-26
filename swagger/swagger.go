@@ -151,6 +151,19 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	body.Value.Content = openapi3.NewContentWithSchema(schema, []string{contentType})
 	return body
 }
+func (swagger *Swagger) getResponses(responses map[string]interface{}) openapi3.Responses {
+	ret := openapi3.NewResponses()
+	for k, v := range responses {
+		ret[k] = &openapi3.ResponseRef{
+			Value: &openapi3.Response{
+				Content: openapi3.NewContentWithJSONSchema(&openapi3.Schema{
+					Example: v,
+				}),
+			},
+		}
+	}
+	return ret
+}
 func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Parameters {
 	parameters := openapi3.NewParameters()
 	if model == nil {
@@ -232,7 +245,7 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 				Summary:     r.Summary,
 				Description: r.Description,
 				Deprecated:  r.Deprecated,
-				Responses:   r.Responses,
+				Responses:   swagger.getResponses(r.Responses),
 				Parameters:  swagger.getParametersByModel(model),
 				Security:    swagger.getSecurityRequirements(r.Securities),
 			}
