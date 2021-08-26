@@ -23,7 +23,7 @@ go get -u github.com/long2ice/fastgo
 
 ## Online Demo
 
-You can see online demo at <https://fastgo.long2ice.cn/docs> or <https://fastgo.long2ice.cn/redoc>.
+You can see online demo at <https://fastgo.long2ice.io/docs> or <https://fastgo.long2ice.io/redoc>.
 
 ![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/docs.png)
 ![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/redoc.png)
