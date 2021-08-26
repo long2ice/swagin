@@ -156,8 +156,8 @@ Finally, start the application with routes defined.
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/long2ice/fastgo"
+  "github.com/gin-contrib/cors"
+  "github.com/long2ice/fastgo"
 )
 
 func main() {
@@ -195,6 +195,23 @@ In some cases you may want to disable docs such as in production, just put `nil`
 
 ```go
 app = fastgo.New(nil)
+```
+
+### SubAPP Mount
+
+If you want to use sub application, you can mount another `FastGo` instance to main application, and their swagger docs
+is also separate.
+
+```go
+package main
+
+func main() {
+  app := fastgo.New(NewSwagger())
+  subApp := fastgo.New(NewSwagger())
+  subApp.GET("/noModel", noModel)
+  app.Mount("/sub", subApp)
+}
+
 ```
 
 ## ThanksTo

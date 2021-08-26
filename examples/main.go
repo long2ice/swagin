@@ -8,6 +8,9 @@ import (
 
 func main() {
 	app := fastgo.New(NewSwagger())
+	subApp := fastgo.New(NewSwagger())
+	subApp.GET("/noModel", noModel)
+	app.Mount("/sub", subApp)
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"*"},

@@ -42,38 +42,38 @@ func Security(securities ...security.ISecurity) Option {
 	}
 }
 
-func (g *Group) Handle(path string, method string, r *router.Router) gin.IRoutes {
+func (g *Group) Handle(path string, method string, r *router.Router) {
 	router.Handlers(g.Handlers...)(r)
 	router.Tags(g.Tags...)(r)
 	router.Security(g.Securities...)(r)
-	return g.FastGo.Handle(g.Path+path, method, r)
+	g.FastGo.Handle(g.Path+path, method, r)
 }
-func (g *Group) GET(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodGet, router)
-}
-
-func (g *Group) POST(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodPost, router)
+func (g *Group) GET(path string, router *router.Router) {
+	g.Handle(path, http.MethodGet, router)
 }
 
-func (g *Group) HEAD(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodHead, router)
+func (g *Group) POST(path string, router *router.Router) {
+	g.Handle(path, http.MethodPost, router)
 }
 
-func (g *Group) PATCH(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodPatch, router)
+func (g *Group) HEAD(path string, router *router.Router) {
+	g.Handle(path, http.MethodHead, router)
 }
 
-func (g *Group) DELETE(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodDelete, router)
+func (g *Group) PATCH(path string, router *router.Router) {
+	g.Handle(path, http.MethodPatch, router)
 }
 
-func (g *Group) PUT(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodPut, router)
+func (g *Group) DELETE(path string, router *router.Router) {
+	g.Handle(path, http.MethodDelete, router)
 }
 
-func (g *Group) OPTIONS(path string, router *router.Router) gin.IRoutes {
-	return g.Handle(path, http.MethodOptions, router)
+func (g *Group) PUT(path string, router *router.Router) {
+	g.Handle(path, http.MethodPut, router)
+}
+
+func (g *Group) OPTIONS(path string, router *router.Router) {
+	g.Handle(path, http.MethodOptions, router)
 }
 
 func (g *Group) Group(path string, options ...Option) *Group {
