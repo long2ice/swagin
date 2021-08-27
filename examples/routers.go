@@ -14,7 +14,7 @@ var (
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model:       &QueryModel{},
+				Model:       &TestQuery{},
 				Description: "response model description",
 			},
 		}),
@@ -26,7 +26,7 @@ var (
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: &QueryModelList{{}},
+				Model: &[]*TestQuery{{}},
 			},
 		}),
 	)
@@ -50,7 +50,7 @@ var (
 		router.Summary("Test json body"),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: &FormModel{},
+				Model: &TestForm{},
 			},
 		}),
 	)

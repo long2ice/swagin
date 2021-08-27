@@ -28,6 +28,8 @@ You can see online demo at <https://fastgo.long2ice.io/docs> or <https://fastgo.
 ![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/docs.png)
 ![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/redoc.png)
 
+And you can reference all usage in [examples](https://github.com/long2ice/fastgo/tree/dev/examples).
+
 ## Usage
 
 ### Build Swagger
@@ -65,24 +67,17 @@ Then make api struct which implement `router.IAPI`.
 ```go
 package examples
 
-type QueryModel struct {
-	Name string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
-}
 type TestQuery struct {
-	Model *QueryModel
-}
-
-func (t *TestQuery) NewModel() interface{} {
-	return &QueryModel{}
+  Name string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t.Model)
+  c.JSON(http.StatusOK, t)
 }
 ```
 
-Note that the `QueryModel`? `FastGo` will validate request and inject it automatically, then you can use it in handler
-easily.
+Note that the attributes in `TestQuery`? `FastGo` will validate request and inject it automatically, then you can use it
+in handler easily.
 
 ### Write Router
 
@@ -130,7 +125,7 @@ package main
 func (t *TestQuery) Handler(c *gin.Context) {
   user := c.MustGet(security.Credentials).(*security.User)
   fmt.Println(user)
-  c.JSON(http.StatusOK, t.Model)
+  c.JSON(http.StatusOK, t)
 }
 ```
 

@@ -4,52 +4,42 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/security"
+	"mime/multipart"
 	"net/http"
 )
 
 type TestQuery struct {
-	Model *QueryModel
-}
-
-func (t *TestQuery) NewModel() interface{} {
-	return &QueryModel{}
+	Name  string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	Token string `header:"token" binding:"required" json:"token" default:"test"`
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {
 	user := c.MustGet(security.Credentials).(*security.User)
 	fmt.Println(user)
-	c.JSON(http.StatusOK, t.Model)
+	c.JSON(http.StatusOK, t)
 }
 
 type TestQueryPath struct {
-	Model *QueryPathModel
-}
-
-func (t *TestQueryPath) NewModel() interface{} {
-	return &QueryPathModel{}
+	Name  string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	ID    int    `uri:"id" binding:"required" json:"id" description:"id of model" default:"1"`
+	Token string `header:"token" binding:"required" json:"token" default:"test"`
 }
 
 func (t *TestQueryPath) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t.Model)
+	c.JSON(http.StatusOK, t)
 }
 
 type TestForm struct {
-	Model *FormModel
-}
-
-func (t *TestForm) NewModel() interface{} {
-	return &FormModel{}
+	ID   int    `query:"id" binding:"required" json:"id" description:"id of model" default:"1"`
+	Name string `form:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	List []int  `form:"list" binding:"required" json:"list" description:"list of model" default:"[1]"`
 }
 
 func (t *TestForm) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t.Model)
+	c.JSON(http.StatusOK, t)
 }
 
 type TestNoModel struct {
-}
-
-func (t *TestNoModel) NewModel() interface{} {
-	return nil
 }
 
 func (t *TestNoModel) Handler(c *gin.Context) {
@@ -57,13 +47,9 @@ func (t *TestNoModel) Handler(c *gin.Context) {
 }
 
 type TestFile struct {
-	Model *FormFileModel
-}
-
-func (t *TestFile) NewModel() interface{} {
-	return &FormFileModel{}
+	File *multipart.FileHeader `form:"file" binding:"required" description:"file upload"`
 }
 
 func (t *TestFile) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"file": t.Model.File.Filename})
+	c.JSON(http.StatusOK, gin.H{"file": t.File.Filename})
 }

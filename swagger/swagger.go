@@ -295,7 +295,7 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 			if r.Exclude {
 				continue
 			}
-			model := r.API.NewModel()
+			model := r.API
 			operation := &openapi3.Operation{
 				Tags:        r.Tags,
 				OperationID: r.OperationID,

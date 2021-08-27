@@ -5,9 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/fastgo/security"
 	"net/http"
-	"reflect"
 )
 
+type IAPI interface {
+	Handler(context *gin.Context)
+}
 type Router struct {
 	Handlers    *list.List
 	Path        string
@@ -26,20 +28,9 @@ type Router struct {
 
 func BindModel(api IAPI) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		model := api.NewModel()
-		if err := c.ShouldBindRequest(model); err != nil {
+		if err := c.ShouldBindRequest(api); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
-		}
-		getType := reflect.TypeOf(api).Elem()
-		getValue := reflect.ValueOf(api).Elem()
-		for i := 0; i < getType.NumField(); i++ {
-			field := getType.Field(i)
-			value := getValue.Field(i)
-			if field.Type == reflect.TypeOf(model) {
-				value.Set(reflect.ValueOf(model))
-				break
-			}
 		}
 		c.Next()
 	}
