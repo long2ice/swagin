@@ -100,6 +100,8 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 				Format: "binary",
 			},
 		}
+	case []interface{}:
+		schema = openapi3.NewArraySchema()
 	default:
 		schema = openapi3.NewStringSchema()
 	}
@@ -155,35 +157,7 @@ func (swagger *Swagger) getResponses(response router.Response) openapi3.Response
 	ret := openapi3.NewResponses()
 	for k, v := range response {
 		schema := openapi3.NewObjectSchema()
-		schema.Properties = openapi3.Schemas{}
-		type_ := reflect.TypeOf(v.Model).Elem()
-		value_ := reflect.ValueOf(v.Model).Elem()
-		for i := 0; i < type_.NumField(); i++ {
-			field := type_.Field(i)
-			value := value_.Field(i)
-			fieldSchema := swagger.getSchemaByType(value.Interface())
-			tags, err := structtag.Parse(string(field.Tag))
-			if err != nil {
-				panic(err)
-			}
-			tag, err := tags.Get("json")
-			if err != nil {
-				continue
-			}
-			bindingTag, err := tags.Get(BINDING)
-			if err == nil && bindingTag.Name == "required" {
-				schema.Required = append(schema.Required, tag.Name)
-			}
-			descriptionTag, err := tags.Get(DESCRIPTION)
-			if err == nil {
-				fieldSchema.Description = descriptionTag.Name
-			}
-			defaultTag, err := tags.Get(DEFAULT)
-			if err == nil {
-				fieldSchema.Default = defaultTag.Name
-			}
-			schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
-		}
+		schema.Example = v.Model
 		content := openapi3.NewContentWithJSONSchema(schema)
 		ret[k] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
