@@ -18,7 +18,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 	queryGroup := app.Group("/query", fastgo.Tags("Query"))
-	queryGroup.GET("", query)
+	queryGroup.GET("/list", queryList)
 	queryGroup.GET("/:id", queryPath)
 	queryGroup.DELETE("", query)
 

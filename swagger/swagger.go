@@ -100,10 +100,55 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 				Format: "binary",
 			},
 		}
-	case []interface{}:
-		schema = openapi3.NewArraySchema()
 	default:
 		schema = openapi3.NewStringSchema()
+	}
+	return schema
+}
+func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Schema {
+	type_ := reflect.TypeOf(model)
+	value_ := reflect.ValueOf(model)
+	schema := openapi3.NewObjectSchema()
+	if type_.Kind() == reflect.Ptr {
+		type_ = type_.Elem()
+	}
+	if value_.Kind() == reflect.Ptr {
+		value_ = value_.Elem()
+	}
+	if type_.Kind() == reflect.Struct {
+		for i := 0; i < type_.NumField(); i++ {
+			field := type_.Field(i)
+			value := value_.Field(i)
+			fieldSchema := swagger.getSchemaByType(value.Interface())
+			tags, err := structtag.Parse(string(field.Tag))
+			if err != nil {
+				panic(err)
+			}
+			tag, err := tags.Get(FORM)
+			if err != nil {
+				continue
+			}
+			descriptionTag, err := tags.Get(DESCRIPTION)
+			if err == nil {
+				fieldSchema.Description = descriptionTag.Name
+			}
+			bindingTag, err := tags.Get(BINDING)
+			if err == nil {
+				if bindingTag.Name == "required" {
+					schema.Required = append(schema.Required, tag.Name)
+				}
+			}
+			defaultTag, err := tags.Get(DEFAULT)
+			if err == nil {
+				fieldSchema.Default = defaultTag.Name
+			}
+			schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
+		}
+	} else if type_.Kind() == reflect.Slice {
+		schema = openapi3.NewArraySchema()
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getRequestSchemaByModel(value_.Elem().Index(0).Interface())}
+	} else {
+		schema = swagger.getSchemaByType(model)
 	}
 	return schema
 }
@@ -114,38 +159,7 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	if model == nil {
 		return body
 	}
-	schema := openapi3.NewObjectSchema()
-	schema.Properties = openapi3.Schemas{}
-	type_ := reflect.TypeOf(model).Elem()
-	value_ := reflect.ValueOf(model).Elem()
-	for i := 0; i < type_.NumField(); i++ {
-		field := type_.Field(i)
-		value := value_.Field(i)
-		fieldSchema := swagger.getSchemaByType(value.Interface())
-		tags, err := structtag.Parse(string(field.Tag))
-		if err != nil {
-			panic(err)
-		}
-		tag, err := tags.Get(FORM)
-		if err != nil {
-			continue
-		}
-		descriptionTag, err := tags.Get(DESCRIPTION)
-		if err == nil {
-			fieldSchema.Description = descriptionTag.Name
-		}
-		bindingTag, err := tags.Get(BINDING)
-		if err == nil {
-			if bindingTag.Name == "required" {
-				schema.Required = append(schema.Required, tag.Name)
-			}
-		}
-		defaultTag, err := tags.Get(DEFAULT)
-		if err == nil {
-			fieldSchema.Default = defaultTag.Name
-		}
-		schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
-	}
+	schema := swagger.getRequestSchemaByModel(model)
 	body.Value.Required = true
 	if contentType == "" {
 		contentType = binding.MIMEJSON
@@ -153,11 +167,49 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	body.Value.Content = openapi3.NewContentWithSchema(schema, []string{contentType})
 	return body
 }
+func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Schema {
+	type_ := reflect.TypeOf(model).Elem()
+	value_ := reflect.ValueOf(model)
+	schema := openapi3.NewObjectSchema()
+	if type_.Kind() == reflect.Struct {
+		for i := 0; i < type_.NumField(); i++ {
+			field := type_.Field(i)
+			value := value_.Elem().Field(i)
+			fieldSchema := swagger.getSchemaByType(value.Interface())
+			tags, err := structtag.Parse(string(field.Tag))
+			if err != nil {
+				panic(err)
+			}
+			tag, err := tags.Get("json")
+			if err != nil {
+				continue
+			}
+			bindingTag, err := tags.Get(BINDING)
+			if err == nil && bindingTag.Name == "required" {
+				schema.Required = append(schema.Required, tag.Name)
+			}
+			descriptionTag, err := tags.Get(DESCRIPTION)
+			if err == nil {
+				fieldSchema.Description = descriptionTag.Name
+			}
+			defaultTag, err := tags.Get(DEFAULT)
+			if err == nil {
+				fieldSchema.Default = defaultTag.Name
+			}
+			schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
+		}
+	} else if type_.Kind() == reflect.Slice {
+		schema = openapi3.NewArraySchema()
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(value_.Elem().Index(0).Interface())}
+	} else {
+		schema = swagger.getSchemaByType(model)
+	}
+	return schema
+}
 func (swagger *Swagger) getResponses(response router.Response) openapi3.Responses {
 	ret := openapi3.NewResponses()
 	for k, v := range response {
-		schema := openapi3.NewObjectSchema()
-		schema.Example = v.Model
+		schema := swagger.getResponseSchemaByModel(v.Model)
 		content := openapi3.NewContentWithJSONSchema(schema)
 		ret[k] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
@@ -299,7 +351,7 @@ func (swagger *Swagger) BuildOpenAPI() {
 	}
 	swagger.OpenAPI.Paths = swagger.getPaths()
 }
-func (swagger *Swagger) MarshalJSON() ([]byte, error) {
 
+func (swagger *Swagger) MarshalJSON() ([]byte, error) {
 	return swagger.OpenAPI.MarshalJSON()
 }

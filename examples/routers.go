@@ -19,6 +19,17 @@ var (
 			},
 		}),
 	)
+	queryList = router.New(
+		&TestQuery{},
+		router.Summary("Test query list"),
+		router.Description("Test query list model"),
+		router.Security(&security.Basic{}),
+		router.Responses(router.Response{
+			"200": router.ResponseItem{
+				Model: &QueryModelList{{}},
+			},
+		}),
+	)
 	noModel = router.New(
 		&TestNoModel{},
 		router.Summary("Test no model"),
@@ -37,6 +48,11 @@ var (
 	body = router.New(
 		&TestForm{},
 		router.Summary("Test json body"),
+		router.Responses(router.Response{
+			"200": router.ResponseItem{
+				Model: &FormModel{},
+			},
+		}),
 	)
 	file = router.New(
 		&TestFile{},

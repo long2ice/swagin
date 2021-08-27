@@ -16,8 +16,11 @@ type QueryPathModel struct {
 type FormModel struct {
 	ID   int    `query:"id" binding:"required" json:"id" description:"id of model" default:"1"`
 	Name string `form:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	List []int  `form:"list" binding:"required" json:"list" description:"list of model" default:"[1]"`
 }
 
 type FormFileModel struct {
 	File *multipart.FileHeader `form:"file" binding:"required" description:"file upload"`
 }
+
+type QueryModelList []*QueryModel
