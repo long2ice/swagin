@@ -46,7 +46,7 @@ import (
 )
 
 func NewSwagger() *swagger.Swagger {
-  return swagger.New("SwaGin", "Gin + Swagger = SwaGin", "0.1.0",
+  return swagger.New("SwaGin", "Swagger + Gin = SwaGin", "0.1.0",
     swagger.License(&openapi3.License{
       Name: "Apache License 2.0",
       URL:  "https://github.com/long2ice/swagin/blob/dev/LICENSE",
@@ -135,13 +135,17 @@ func (t *TestQuery) Handler(c *gin.Context) {
 Then you can mount router in your application or group.
 
 ```go
-app := swagin.New(NewSwagger())
-queryGroup := app.Group("/query", swagin.Tags("Query"))
-queryGroup.GET("", query)
-queryGroup.GET("/:id", queryPath)
-queryGroup.DELETE("", query)
+package main
 
-app.GET("/noModel", noModel)
+func main() {
+  app := swagin.New(NewSwagger())
+  queryGroup := app.Group("/query", swagin.Tags("Query"))
+  queryGroup.GET("", query)
+  queryGroup.GET("/:id", queryPath)
+  queryGroup.DELETE("", query)
+  app.GET("/noModel", noModel)
+}
+
 ```
 
 ### Start APP

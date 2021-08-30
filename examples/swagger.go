@@ -6,7 +6,7 @@ import (
 )
 
 func NewSwagger() *swagger.Swagger {
-	return swagger.New("SwaGin", "Gin + Swagger = SwaGin", "0.1.0",
+	return swagger.New("SwaGin", "Swagger + Gin = SwaGin", "0.1.0",
 		swagger.License(&openapi3.License{
 			Name: "Apache License 2.0",
 			URL:  "https://github.com/long2ice/swagin/blob/dev/LICENSE",
