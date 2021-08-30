@@ -15,7 +15,7 @@ jobs:
         uses: VaultVulp/gp-docker-action@1.1.8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          image-name: fastgo
+          image-name: swagin
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -29,6 +29,6 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /root/fastgo
+            cd /root/swagin
             docker-compose pull
             docker-compose up -d --build

@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/long2ice/fastgo/security"
+	"github.com/long2ice/swagin/security"
 )
 
 type Option func(router *Router)

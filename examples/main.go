@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
-	"github.com/long2ice/fastgo"
-	"github.com/long2ice/fastgo/security"
+	"github.com/long2ice/swagin"
+	"github.com/long2ice/swagin/security"
 )
 
 func main() {
-	app := fastgo.New(NewSwagger())
-	subApp := fastgo.New(NewSwagger())
+	app := swagin.New(NewSwagger())
+	subApp := swagin.New(NewSwagger())
 	subApp.GET("/noModel", noModel)
 	app.Mount("/sub", subApp)
 	app.Use(cors.New(cors.Config{
@@ -17,14 +17,14 @@ func main() {
 		AllowHeaders:     []string{"*"},
 		AllowCredentials: true,
 	}))
-	queryGroup := app.Group("/query", fastgo.Tags("Query"))
+	queryGroup := app.Group("/query", swagin.Tags("Query"))
 	queryGroup.GET("/list", queryList)
 	queryGroup.GET("/:id", queryPath)
 	queryGroup.DELETE("", query)
 
 	app.GET("/noModel", noModel)
 
-	formGroup := app.Group("/form", fastgo.Tags("Form"), fastgo.Security(&security.Bearer{}))
+	formGroup := app.Group("/form", swagin.Tags("Form"), swagin.Security(&security.Bearer{}))
 	formGroup.POST("/encoded", formEncode)
 	formGroup.PUT("", body)
 	formGroup.POST("/file", file)

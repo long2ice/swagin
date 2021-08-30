@@ -1,14 +1,14 @@
-package fastgo
+package swagin
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/long2ice/fastgo/router"
-	"github.com/long2ice/fastgo/security"
+	"github.com/long2ice/swagin/router"
+	"github.com/long2ice/swagin/security"
 	"net/http"
 )
 
 type Group struct {
-	*FastGo
+	*SwaGin
 	Path       string
 	Tags       []string
 	Handlers   []gin.HandlerFunc
@@ -46,7 +46,7 @@ func (g *Group) Handle(path string, method string, r *router.Router) {
 	router.Handlers(g.Handlers...)(r)
 	router.Tags(g.Tags...)(r)
 	router.Security(g.Securities...)(r)
-	g.FastGo.Handle(g.Path+path, method, r)
+	g.SwaGin.Handle(g.Path+path, method, r)
 }
 func (g *Group) GET(path string, router *router.Router) {
 	g.Handle(path, http.MethodGet, router)
@@ -78,7 +78,7 @@ func (g *Group) OPTIONS(path string, router *router.Router) {
 
 func (g *Group) Group(path string, options ...Option) *Group {
 	group := &Group{
-		FastGo:     g.FastGo,
+		SwaGin:     g.SwaGin,
 		Path:       g.Path + path,
 		Tags:       g.Tags,
 		Handlers:   g.Handlers,

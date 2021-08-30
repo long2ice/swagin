@@ -1,4 +1,4 @@
-module github.com/long2ice/fastgo
+module github.com/long2ice/swagin
 
 go 1.16
 

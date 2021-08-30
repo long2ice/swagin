@@ -1,12 +1,12 @@
-package fastgo
+package swagin
 
 import (
 	"embed"
 	"encoding/json"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
-	"github.com/long2ice/fastgo/router"
-	"github.com/long2ice/fastgo/swagger"
+	"github.com/long2ice/swagin/router"
+	"github.com/long2ice/swagin/swagger"
 	"html/template"
 	"net/http"
 )
@@ -14,16 +14,16 @@ import (
 //go:embed templates/*
 var templates embed.FS
 
-type FastGo struct {
+type SwaGin struct {
 	*gin.Engine
 	Swagger  *swagger.Swagger
 	Routers  map[string]map[string]*router.Router
-	subApps  map[string]*FastGo
+	subApps  map[string]*SwaGin
 	rootPath string
 }
 
-func New(swagger *swagger.Swagger) *FastGo {
-	f := &FastGo{Engine: gin.New(), Swagger: swagger, Routers: make(map[string]map[string]*router.Router), subApps: make(map[string]*FastGo)}
+func New(swagger *swagger.Swagger) *SwaGin {
+	f := &SwaGin{Engine: gin.New(), Swagger: swagger, Routers: make(map[string]map[string]*router.Router), subApps: make(map[string]*SwaGin)}
 	f.SetHTMLTemplate(template.Must(template.ParseFS(templates, "templates/*.html")))
 	if swagger != nil {
 		swagger.Routers = f.Routers
@@ -31,7 +31,7 @@ func New(swagger *swagger.Swagger) *FastGo {
 	return f
 }
 
-func (g *FastGo) Mount(path string, app *FastGo) {
+func (g *SwaGin) Mount(path string, app *SwaGin) {
 	app.rootPath = path
 	app.Engine = g.Engine
 	app.Swagger.Servers = append(app.Swagger.Servers, &openapi3.Server{
@@ -40,9 +40,9 @@ func (g *FastGo) Mount(path string, app *FastGo) {
 	g.subApps[path] = app
 }
 
-func (g *FastGo) Group(path string, options ...Option) *Group {
+func (g *SwaGin) Group(path string, options ...Option) *Group {
 	group := &Group{
-		FastGo: g,
+		SwaGin: g,
 		Path:   path,
 	}
 	for _, option := range options {
@@ -51,7 +51,7 @@ func (g *FastGo) Group(path string, options ...Option) *Group {
 	return group
 }
 
-func (g *FastGo) Handle(path string, method string, r *router.Router) {
+func (g *SwaGin) Handle(path string, method string, r *router.Router) {
 	r.Method = method
 	r.Path = path
 	if g.Routers[path] == nil {
@@ -60,35 +60,35 @@ func (g *FastGo) Handle(path string, method string, r *router.Router) {
 	g.Routers[path][method] = r
 }
 
-func (g *FastGo) GET(path string, router *router.Router) {
+func (g *SwaGin) GET(path string, router *router.Router) {
 	g.Handle(path, http.MethodGet, router)
 }
 
-func (g *FastGo) POST(path string, router *router.Router) {
+func (g *SwaGin) POST(path string, router *router.Router) {
 	g.Handle(path, http.MethodPost, router)
 }
 
-func (g *FastGo) HEAD(path string, router *router.Router) {
+func (g *SwaGin) HEAD(path string, router *router.Router) {
 	g.Handle(path, http.MethodHead, router)
 }
 
-func (g *FastGo) PATCH(path string, router *router.Router) {
+func (g *SwaGin) PATCH(path string, router *router.Router) {
 	g.Handle(path, http.MethodPatch, router)
 }
 
-func (g *FastGo) DELETE(path string, router *router.Router) {
+func (g *SwaGin) DELETE(path string, router *router.Router) {
 	g.Handle(path, http.MethodDelete, router)
 }
 
-func (g *FastGo) PUT(path string, router *router.Router) {
+func (g *SwaGin) PUT(path string, router *router.Router) {
 	g.Handle(path, http.MethodPut, router)
 }
 
-func (g *FastGo) OPTIONS(path string, router *router.Router) {
+func (g *SwaGin) OPTIONS(path string, router *router.Router) {
 	g.Handle(path, http.MethodOptions, router)
 }
 
-func (g *FastGo) init() {
+func (g *SwaGin) init() {
 	g.initRouters()
 	if g.Swagger == nil {
 		return
@@ -128,7 +128,7 @@ func (g *FastGo) init() {
 	})
 	g.Swagger.BuildOpenAPI()
 }
-func (g *FastGo) initRouters() {
+func (g *SwaGin) initRouters() {
 	for path, m := range g.Routers {
 		path = g.fullPath(path)
 		for method, r := range m {
@@ -153,13 +153,13 @@ func (g *FastGo) initRouters() {
 		}
 	}
 }
-func (g *FastGo) fullPath(path string) string {
+func (g *SwaGin) fullPath(path string) string {
 	return g.rootPath + path
 }
-func (g *FastGo) Run(addr ...string) error {
+func (g *SwaGin) Run(addr ...string) error {
 	g.init()
-	for _, fastGo := range g.subApps {
-		fastGo.init()
+	for _, s := range g.subApps {
+		s.init()
 	}
 	return g.Engine.Run(addr...)
 }

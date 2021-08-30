@@ -1,10 +1,10 @@
-# Gin + Swagger = FastGo
+# Gin + Swagger = SwaGin
 
-[![deploy](https://github.com/long2ice/fastgo/actions/workflows/deploy.yml/badge.svg)](https://github.com/long2ice/fastgo/actions/workflows/deploy.yml)
+[![deploy](https://github.com/long2ice/swagin/actions/workflows/deploy.yml/badge.svg)](https://github.com/long2ice/swagin/actions/workflows/deploy.yml)
 
 ## Introduction
 
-`FastGo` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs and
+`SwaGin` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs and
 request model validation.
 
 ## Why I build this project?
@@ -13,22 +13,22 @@ Previous I have used [FastAPI](https://github.com/tiangolo/fastapi), which gives
 generation, because nobody like writing api docs.
 
 Now I use `Gin` but I can't found anything like that, I found [swag](https://github.com/swaggo/swag) but which write
-docs with comment is so stupid. So there is `FastGo`.
+docs with comment is so stupid. So there is `SwaGin`.
 
 ## Installation
 
 ```shell
-go get -u github.com/long2ice/fastgo
+go get -u github.com/long2ice/swagin
 ```
 
 ## Online Demo
 
-You can see online demo at <https://fastgo.long2ice.io/docs> or <https://fastgo.long2ice.io/redoc>.
+You can see online demo at <https://swagin.long2ice.io/docs> or <https://swagin.long2ice.io/redoc>.
 
-![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/docs.png)
-![](https://raw.githubusercontent.com/long2ice/fastgo/dev/images/redoc.png)
+![](https://raw.githubusercontent.com/long2ice/swagin/dev/images/docs.png)
+![](https://raw.githubusercontent.com/long2ice/swagin/dev/images/redoc.png)
 
-And you can reference all usage in [examples](https://github.com/long2ice/fastgo/tree/dev/examples).
+And you can reference all usage in [examples](https://github.com/long2ice/swagin/tree/dev/examples).
 
 ## Usage
 
@@ -40,23 +40,23 @@ Firstly, build a swagger object with basic information.
 package examples
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/long2ice/fastgo/swagger"
+  "github.com/getkin/kin-openapi/openapi3"
+  "github.com/long2ice/swagin/swagger"
 )
 
 func NewSwagger() *swagger.Swagger {
-	return swagger.New("FastGo", "Gin + Swagger = FastGo", "0.1.0",
-		swagger.License(&openapi3.License{
-			Name: "Apache License 2.0",
-			URL:  "https://github.com/long2ice/fastgo/blob/dev/LICENSE",
-		}),
-		swagger.Contact(&openapi3.Contact{
-			Name:  "long2ice",
-			URL:   "https://github.com/long2ice",
-			Email: "long2ice@gmail.com",
-		}),
-		swagger.TermsOfService("https://github.com/long2ice"),
-	)
+  return swagger.New("SwaGin", "Gin + Swagger = SwaGin", "0.1.0",
+    swagger.License(&openapi3.License{
+      Name: "Apache License 2.0",
+      URL:  "https://github.com/long2ice/swagin/blob/dev/LICENSE",
+    }),
+    swagger.Contact(&openapi3.Contact{
+      Name:  "long2ice",
+      URL:   "https://github.com/long2ice",
+      Email: "long2ice@gmail.com",
+    }),
+    swagger.TermsOfService("https://github.com/long2ice"),
+  )
 }
 ```
 
@@ -76,7 +76,7 @@ func (t *TestQuery) Handler(c *gin.Context) {
 }
 ```
 
-Note that the attributes in `TestQuery`? `FastGo` will validate request and inject it automatically, then you can use it
+Note that the attributes in `TestQuery`? `SwaGin` will validate request and inject it automatically, then you can use it
 in handler easily.
 
 ### Write Router
@@ -134,8 +134,8 @@ func (t *TestQuery) Handler(c *gin.Context) {
 Then you can mount router in your application or group.
 
 ```go
-app := fastgo.New(NewSwagger())
-queryGroup := app.Group("/query", fastgo.Tags("Query"))
+app := swagin.New(NewSwagger())
+queryGroup := app.Group("/query", swagin.Tags("Query"))
 queryGroup.GET("", query)
 queryGroup.GET("/:id", queryPath)
 queryGroup.DELETE("", query)
@@ -152,11 +152,11 @@ package main
 
 import (
   "github.com/gin-contrib/cors"
-  "github.com/long2ice/fastgo"
+  "github.com/long2ice/swagin"
 )
 
 func main() {
-  app := fastgo.New(NewSwagger())
+  app := swagin.New(NewSwagger())
   app.Use(cors.New(cors.Config{
     AllowOrigins:     []string{"*"},
     AllowMethods:     []string{"*"},
@@ -164,12 +164,12 @@ func main() {
     AllowCredentials: true,
   }))
 
-  queryGroup := app.Group("/query", fastgo.Tags("Query"))
+  queryGroup := app.Group("/query", swagin.Tags("Query"))
   queryGroup.GET("", query)
   queryGroup.GET("/:id", queryPath)
   queryGroup.DELETE("", query)
 
-  formGroup := app.Group("/form", fastgo.Tags("Form"))
+  formGroup := app.Group("/form", swagin.Tags("Form"))
   formGroup.POST("/encoded", formEncode)
   formGroup.PUT("", body)
 
@@ -186,23 +186,23 @@ fun!
 
 ### Disable Docs
 
-In some cases you may want to disable docs such as in production, just put `nil` to `fastgo.New`.
+In some cases you may want to disable docs such as in production, just put `nil` to `swagin.New`.
 
 ```go
-app = fastgo.New(nil)
+app = swagin.New(nil)
 ```
 
 ### SubAPP Mount
 
-If you want to use sub application, you can mount another `FastGo` instance to main application, and their swagger docs
+If you want to use sub application, you can mount another `SwaGin` instance to main application, and their swagger docs
 is also separate.
 
 ```go
 package main
 
 func main() {
-  app := fastgo.New(NewSwagger())
-  subApp := fastgo.New(NewSwagger())
+  app := swagin.New(NewSwagger())
+  subApp := swagin.New(NewSwagger())
   subApp.GET("/noModel", noModel)
   app.Mount("/sub", subApp)
 }
@@ -218,5 +218,5 @@ func main() {
 ## License
 
 This project is licensed under the
-[Apache-2.0](https://github.com/long2ice/fastgo/blob/master/LICENSE)
+[Apache-2.0](https://github.com/long2ice/swagin/blob/master/LICENSE)
 License.
