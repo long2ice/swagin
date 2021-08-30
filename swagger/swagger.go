@@ -1,7 +1,6 @@
 package swagger
 
 import (
-	"fmt"
 	"github.com/fatih/structtag"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin/binding"
@@ -61,7 +60,6 @@ func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity)
 	return securityRequirements
 }
 func (swagger *Swagger) getSchemaByType(t interface{}, request bool) *openapi3.Schema {
-	fmt.Println(t)
 	var schema *openapi3.Schema
 	var m float64
 	m = float64(0)
