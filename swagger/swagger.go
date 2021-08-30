@@ -119,7 +119,6 @@ func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Sch
 		for i := 0; i < type_.NumField(); i++ {
 			field := type_.Field(i)
 			value := value_.Field(i)
-			fieldSchema := swagger.getSchemaByType(value.Interface())
 			tags, err := structtag.Parse(string(field.Tag))
 			if err != nil {
 				panic(err)
@@ -128,6 +127,7 @@ func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Sch
 			if err != nil {
 				continue
 			}
+			fieldSchema := swagger.getSchemaByType(value.Interface())
 			descriptionTag, err := tags.Get(DESCRIPTION)
 			if err == nil {
 				fieldSchema.Description = descriptionTag.Name
@@ -231,7 +231,6 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 	for i := 0; i < type_.NumField(); i++ {
 		field := type_.Field(i)
 		value := value_.Field(i)
-		schema := swagger.getSchemaByType(value.Interface())
 		tags, err := structtag.Parse(string(field.Tag))
 		if err != nil {
 			panic(err)
@@ -269,6 +268,7 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 			parameter.Required = bindingTag.Name == "required"
 		}
 		defaultTag, err := tags.Get(DEFAULT)
+		schema := swagger.getSchemaByType(value.Interface())
 		if err == nil {
 			schema.Default = defaultTag.Name
 		}
