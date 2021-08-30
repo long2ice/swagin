@@ -14,19 +14,19 @@ var (
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model:       &TestQuery{},
+				Model:       TestQuery{},
 				Description: "response model description",
 			},
 		}),
 	)
 	queryList = router.New(
-		&TestQuery{},
+		&TestQueryList{},
 		router.Summary("Test query list"),
 		router.Description("Test query list model"),
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: &[]*TestQuery{{}},
+				Model: []TestQueryList{},
 			},
 		}),
 	)
@@ -50,7 +50,7 @@ var (
 		router.Summary("Test json body"),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: &TestForm{},
+				Model: TestForm{},
 			},
 		}),
 	)

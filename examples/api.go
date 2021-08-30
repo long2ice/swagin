@@ -19,6 +19,17 @@ func (t *TestQuery) Handler(c *gin.Context) {
 	c.JSON(http.StatusOK, t)
 }
 
+type TestQueryList struct {
+	Name  string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	Token string `header:"token" binding:"required" json:"token" default:"test"`
+}
+
+func (t *TestQueryList) Handler(c *gin.Context) {
+	user := c.MustGet(security.Credentials).(*security.User)
+	fmt.Println(user)
+	c.JSON(http.StatusOK, []TestQueryList{*t})
+}
+
 type TestQueryPath struct {
 	Name  string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
 	ID    int    `uri:"id" binding:"required" json:"id" description:"id of model" default:"1"`
@@ -32,7 +43,7 @@ func (t *TestQueryPath) Handler(c *gin.Context) {
 type TestForm struct {
 	ID   int    `query:"id" binding:"required" json:"id" description:"id of model" default:"1"`
 	Name string `form:"name" binding:"required" json:"name" description:"name of model" default:"test"`
-	List []int  `form:"list" binding:"required" json:"list" description:"list of model" default:"[1]"`
+	List []int  `form:"list" binding:"required" json:"list" description:"list of model"`
 }
 
 func (t *TestForm) Handler(c *gin.Context) {

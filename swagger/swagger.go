@@ -1,6 +1,7 @@
 package swagger
 
 import (
+	"fmt"
 	"github.com/fatih/structtag"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin/binding"
@@ -59,7 +60,8 @@ func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity)
 	}
 	return securityRequirements
 }
-func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
+func (swagger *Swagger) getSchemaByType(t interface{}, request bool) *openapi3.Schema {
+	fmt.Println(t)
 	var schema *openapi3.Schema
 	var m float64
 	m = float64(0)
@@ -101,7 +103,11 @@ func (swagger *Swagger) getSchemaByType(t interface{}) *openapi3.Schema {
 			},
 		}
 	default:
-		schema = openapi3.NewStringSchema()
+		if request {
+			schema = swagger.getRequestSchemaByModel(t)
+		} else {
+			schema = swagger.getResponseSchemaByModel(t)
+		}
 	}
 	return schema
 }
@@ -127,7 +133,7 @@ func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Sch
 			if err != nil {
 				continue
 			}
-			fieldSchema := swagger.getSchemaByType(value.Interface())
+			fieldSchema := swagger.getSchemaByType(value.Interface(), true)
 			descriptionTag, err := tags.Get(DESCRIPTION)
 			if err == nil {
 				fieldSchema.Description = descriptionTag.Name
@@ -146,9 +152,9 @@ func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Sch
 		}
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
-		schema.Items = &openapi3.SchemaRef{Value: swagger.getRequestSchemaByModel(value_.Elem().Index(0).Interface())}
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getRequestSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
 	} else {
-		schema = swagger.getSchemaByType(model)
+		schema = swagger.getSchemaByType(model, true)
 	}
 	return schema
 }
@@ -168,14 +174,20 @@ func (swagger *Swagger) getRequestBodyByModel(model interface{}, contentType str
 	return body
 }
 func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Schema {
-	type_ := reflect.TypeOf(model).Elem()
+	type_ := reflect.TypeOf(model)
 	value_ := reflect.ValueOf(model)
+	if type_.Kind() == reflect.Ptr {
+		type_ = type_.Elem()
+	}
+	if value_.Kind() == reflect.Ptr {
+		value_ = value_.Elem()
+	}
 	schema := openapi3.NewObjectSchema()
 	if type_.Kind() == reflect.Struct {
 		for i := 0; i < type_.NumField(); i++ {
 			field := type_.Field(i)
-			value := value_.Elem().Field(i)
-			fieldSchema := swagger.getSchemaByType(value.Interface())
+			value := value_.Field(i)
+			fieldSchema := swagger.getSchemaByType(value.Interface(), false)
 			tags, err := structtag.Parse(string(field.Tag))
 			if err != nil {
 				panic(err)
@@ -200,9 +212,9 @@ func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Sc
 		}
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
-		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(value_.Elem().Index(0).Interface())}
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
 	} else {
-		schema = swagger.getSchemaByType(model)
+		schema = swagger.getSchemaByType(model, false)
 	}
 	return schema
 }
@@ -268,7 +280,7 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 			parameter.Required = bindingTag.Name == "required"
 		}
 		defaultTag, err := tags.Get(DEFAULT)
-		schema := swagger.getSchemaByType(value.Interface())
+		schema := swagger.getSchemaByType(value.Interface(), true)
 		if err == nil {
 			schema.Default = defaultTag.Name
 		}
