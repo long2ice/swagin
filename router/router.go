@@ -3,8 +3,10 @@ package router
 import (
 	"container/list"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"github.com/long2ice/swagin/security"
 	"net/http"
+	"reflect"
 )
 
 type IAPI interface {
@@ -28,8 +30,13 @@ type Router struct {
 
 func BindModel(api IAPI) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := c.ShouldBindRequest(api); err != nil {
+		model := reflect.New(reflect.TypeOf(api).Elem()).Interface()
+		if err := c.ShouldBindRequest(model); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		err := copier.Copy(api, model)
+		if err != nil {
 			return
 		}
 		c.Next()

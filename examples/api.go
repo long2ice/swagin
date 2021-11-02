@@ -9,8 +9,9 @@ import (
 )
 
 type TestQuery struct {
-	Name  string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
-	Token string `header:"token" binding:"required" json:"token" default:"test"`
+	Name     string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+	Token    string `header:"token" binding:"required" json:"token" default:"test"`
+	Optional string `query:"optional" json:"optional"`
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {
