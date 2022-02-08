@@ -221,9 +221,10 @@ func (swagger *Swagger) getResponses(response router.Response) openapi3.Response
 	for k, v := range response {
 		schema := swagger.getResponseSchemaByModel(v.Model)
 		content := openapi3.NewContentWithJSONSchema(schema)
+		description := v.Description
 		ret[k] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
-				Description: &v.Description,
+				Description: &description,
 				Content:     content,
 				Headers:     v.Headers,
 			},
