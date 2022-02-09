@@ -3,12 +3,14 @@ package swagin
 import (
 	"embed"
 	"encoding/json"
+	"html/template"
+	"net/http"
+	"strings"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/swagin/router"
 	"github.com/long2ice/swagin/swagger"
-	"html/template"
-	"net/http"
 )
 
 //go:embed templates/*
@@ -94,7 +96,16 @@ func (g *SwaGin) init() {
 		return
 	}
 	g.Engine.GET(g.fullPath(g.Swagger.OpenAPIUrl), func(c *gin.Context) {
-		c.JSON(http.StatusOK, g.Swagger)
+		if strings.HasSuffix(g.Swagger.OpenAPIUrl, ".yml") ||
+			strings.HasSuffix(g.Swagger.OpenAPIUrl, ".yaml") {
+			y, err := g.Swagger.MarshalYAML()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, map[string]string{"status": err.Error()})
+			}
+			c.String(http.StatusOK, string(y))
+		} else {
+			c.JSON(http.StatusOK, g.Swagger)
+		}
 	})
 	g.Engine.GET(g.fullPath(g.Swagger.DocsUrl), func(c *gin.Context) {
 		options := `{}`

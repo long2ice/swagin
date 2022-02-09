@@ -1,16 +1,19 @@
 package swagger
 
 import (
-	"github.com/fatih/structtag"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/long2ice/swagin/router"
-	"github.com/long2ice/swagin/security"
+	"encoding/json"
 	"mime/multipart"
 	"net/http"
 	"reflect"
 	"regexp"
 	"time"
+
+	"github.com/fatih/structtag"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/long2ice/swagin/router"
+	"github.com/long2ice/swagin/security"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -365,4 +368,16 @@ func (swagger *Swagger) BuildOpenAPI() {
 
 func (swagger *Swagger) MarshalJSON() ([]byte, error) {
 	return swagger.OpenAPI.MarshalJSON()
+}
+
+func (swagger *Swagger) MarshalYAML() ([]byte, error) {
+	b, err := swagger.OpenAPI.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	var data interface{}
+	if err = json.Unmarshal(b, &data); err != nil {
+		return nil, err
+	}
+	return yaml.Marshal(data)
 }
