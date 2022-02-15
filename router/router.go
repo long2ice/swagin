@@ -2,37 +2,46 @@ package router
 
 import (
 	"container/list"
+	"net/http"
+	"reflect"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/long2ice/swagin/security"
-	"net/http"
-	"reflect"
 )
 
 type IAPI interface {
 	Handler(context *gin.Context)
 }
+
+type ErrorManager func(ctx *gin.Context, err error)
+
 type Router struct {
-	Handlers    *list.List
-	Path        string
-	Method      string
-	Summary     string
-	Description string
-	Deprecated  bool
-	ContentType string
-	Tags        []string
-	API         IAPI
-	OperationID string
-	Exclude     bool
-	Securities  []security.ISecurity
-	Response    Response
+	Handlers         *list.List
+	Path             string
+	Method           string
+	Summary          string
+	Description      string
+	Deprecated       bool
+	ContentType      string
+	Tags             []string
+	API              IAPI
+	OperationID      string
+	Exclude          bool
+	Securities       []security.ISecurity
+	Response         Response
+	BindErrorManager ErrorManager
 }
 
-func BindModel(api IAPI) gin.HandlerFunc {
+func BindModel(api IAPI, f ErrorManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		model := reflect.New(reflect.TypeOf(api).Elem()).Interface()
 		if err := c.ShouldBindRequest(model); err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			if f != nil {
+				f(c, err)
+			} else {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			}
 			return
 		}
 		err := copier.Copy(api, model)
@@ -63,9 +72,9 @@ func New(api IAPI, options ...Option) *Router {
 		API:      api,
 		Response: make(Response),
 	}
-	r.Handlers.PushBack(BindModel(api))
 	for _, option := range options {
 		option(r)
 	}
+	r.Handlers.PushBack(BindModel(api, r.BindErrorManager))
 	return r
 }
