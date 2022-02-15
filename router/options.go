@@ -71,3 +71,10 @@ func ContentType(contentType string) Option {
 		router.ContentType = contentType
 	}
 }
+
+// BindErrorManager set a function to manage bind errors
+func BindErrorManager(f ErrorManager) Option {
+	return func(router *Router) {
+		router.BindErrorManager = f
+	}
+}
