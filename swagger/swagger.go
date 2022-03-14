@@ -1,16 +1,17 @@
 package swagger
 
 import (
-	"github.com/fatih/structtag"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/long2ice/swagin/router"
-	"github.com/long2ice/swagin/security"
 	"mime/multipart"
 	"net/http"
 	"reflect"
 	"regexp"
 	"time"
+
+	"github.com/fatih/structtag"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/long2ice/swagin/router"
+	"github.com/long2ice/swagin/security"
 )
 
 const (
@@ -210,6 +211,9 @@ func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Sc
 		}
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
+	} else if type_.Kind() == reflect.Map {
+		schema = openapi3.NewObjectSchema()
 		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
 	} else {
 		schema = swagger.getSchemaByType(model, false)
