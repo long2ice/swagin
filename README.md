@@ -72,7 +72,7 @@ Then make api struct which implement `router.IAPI`.
 package examples
 
 type TestQuery struct {
-  Name string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+  Name string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {
