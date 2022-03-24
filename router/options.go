@@ -66,15 +66,18 @@ func Exclude() Option {
 }
 
 // ContentType Set request contentType
-func ContentType(contentType string) Option {
+func ContentType(contentType string, contentTypeType ContentTypeType) Option {
 	return func(router *Router) {
-		router.ContentType = contentType
+		if contentTypeType == ContentTypeRequest {
+			router.RequestContentType = contentType
+		} else {
+			router.ResponseContentType = contentType
+		}
 	}
 }
 
-// BindErrorManager set a function to manage bind errors
-func BindErrorManager(f ErrorManager) Option {
+func ErrorHandler(f ErrorHandlerFunc) Option {
 	return func(router *Router) {
-		router.BindErrorManager = f
+		router.ErrorHandler = f
 	}
 }
