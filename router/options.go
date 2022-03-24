@@ -22,7 +22,7 @@ func Responses(response Response) Option {
 func Handlers(handlers ...gin.HandlerFunc) Option {
 	return func(router *Router) {
 		for _, handler := range handlers {
-			router.Handlers.PushBack(handler)
+			router.Handlers.PushFront(handler)
 		}
 	}
 }
