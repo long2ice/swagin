@@ -43,7 +43,7 @@ var (
 	formEncode = router.New(
 		&TestForm{},
 		router.Summary("Test form"),
-		router.ContentType(binding.MIMEPOSTForm),
+		router.ContentType(binding.MIMEPOSTForm, router.ContentTypeRequest),
 	)
 	body = router.New(
 		&TestForm{},
@@ -57,6 +57,6 @@ var (
 	file = router.New(
 		&TestFile{},
 		router.Summary("Test file upload"),
-		router.ContentType(binding.MIMEMultipartPOSTForm),
+		router.ContentType(binding.MIMEMultipartPOSTForm, router.ContentTypeRequest),
 	)
 )

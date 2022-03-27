@@ -214,16 +214,24 @@ func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Sc
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
 		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
+	} else if type_.Kind() == reflect.Map {
+		schema = openapi3.NewObjectSchema()
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getResponseSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
 	} else {
 		schema = swagger.getSchemaByType(model, false)
 	}
 	return schema
 }
-func (swagger *Swagger) getResponses(response router.Response) openapi3.Responses {
+func (swagger *Swagger) getResponses(response router.Response, contentType string) openapi3.Responses {
 	ret := openapi3.NewResponses()
 	for k, v := range response {
 		schema := swagger.getResponseSchemaByModel(v.Model)
-		content := openapi3.NewContentWithJSONSchema(schema)
+		var content openapi3.Content
+		if contentType == "" || contentType == binding.MIMEJSON {
+			content = openapi3.NewContentWithJSONSchema(schema)
+		} else {
+			content = openapi3.NewContentWithSchema(schema, []string{contentType})
+		}
 		description := v.Description
 		ret[k] = &openapi3.ResponseRef{
 			Value: &openapi3.Response{
@@ -316,11 +324,11 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 				Summary:     r.Summary,
 				Description: r.Description,
 				Deprecated:  r.Deprecated,
-				Responses:   swagger.getResponses(r.Response),
+				Responses:   swagger.getResponses(r.Response, r.ResponseContentType),
 				Parameters:  swagger.getParametersByModel(model),
 				Security:    swagger.getSecurityRequirements(r.Securities),
 			}
-			requestBody := swagger.getRequestBodyByModel(model, r.ContentType)
+			requestBody := swagger.getRequestBodyByModel(model, r.RequestContentType)
 			if method == http.MethodGet {
 				pathItem.Get = operation
 			} else if method == http.MethodPost {
@@ -380,4 +388,52 @@ func (swagger *Swagger) MarshalYAML() ([]byte, error) {
 		return nil, err
 	}
 	return yaml.Marshal(data)
+
+func (swagger *Swagger) WithDocsUrl(url string) *Swagger {
+	DocsUrl(url)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithRedocUrl(url string) *Swagger {
+	RedocUrl(url)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithTitle(title string) *Swagger {
+	Title(title)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithDescription(description string) *Swagger {
+	Description(description)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithVersion(version string) *Swagger {
+	Version(version)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithOpenAPIUrl(url string) *Swagger {
+	OpenAPIUrl(url)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithTermsOfService(termsOfService string) *Swagger {
+	TermsOfService(termsOfService)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithContact(contact *openapi3.Contact) *Swagger {
+	Contact(contact)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithLicense(license *openapi3.License) *Swagger {
+	License(license)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithServers(servers []*openapi3.Server) *Swagger {
+	Servers(servers)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithSwaggerOptions(options map[string]interface{}) *Swagger {
+	SwaggerOptions(options)(swagger)
+	return swagger
+}
+func (swagger *Swagger) WithRedocOptions(options map[string]interface{}) *Swagger {
+	RedocOptions(options)(swagger)
+	return swagger
 }

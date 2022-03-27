@@ -2,12 +2,17 @@ package main
 
 import (
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/long2ice/swagin"
 	"github.com/long2ice/swagin/security"
 )
 
 func main() {
-	app := swagin.New(NewSwagger())
+	app := swagin.New(NewSwagger()).WithErrorHandler(func(ctx *gin.Context, err error, status int) {
+		ctx.AbortWithStatusJSON(status, gin.H{
+			"error": err.Error(),
+		})
+	})
 	subApp := swagin.New(NewSwagger())
 	subApp.GET("/noModel", noModel)
 	app.Mount("/sub", subApp)
