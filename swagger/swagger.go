@@ -388,6 +388,7 @@ func (swagger *Swagger) MarshalYAML() ([]byte, error) {
 		return nil, err
 	}
 	return yaml.Marshal(data)
+}
 
 func (swagger *Swagger) WithDocsUrl(url string) *Swagger {
 	DocsUrl(url)(swagger)
