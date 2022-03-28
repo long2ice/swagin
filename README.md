@@ -3,6 +3,9 @@
 [![deploy](https://github.com/long2ice/swagin/actions/workflows/deploy.yml/badge.svg)](https://github.com/long2ice/swagin/actions/workflows/deploy.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/long2ice/swagin.svg)](https://pkg.go.dev/github.com/long2ice/swagin)
 
+**If you use [Fiber](https://github.com/gofiber/fiber), you can try my another similar
+project [Fibers](https://github.com/long2ice/fibers).**
+
 ## Introduction
 
 `SwaGin` is a web framework based on `Gin` and `Swagger`, which wraps `Gin` and provides built-in swagger api docs and
@@ -69,7 +72,7 @@ Then make api struct which implement `router.IAPI`.
 package examples
 
 type TestQuery struct {
-  Name string `query:"name" binding:"required" json:"name" description:"name of model" default:"test"`
+  Name string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 }
 
 func (t *TestQuery) Handler(c *gin.Context) {

@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
@@ -20,10 +21,11 @@ var templates embed.FS
 
 type SwaGin struct {
 	*gin.Engine
-	Swagger  *swagger.Swagger
-	Routers  map[string]map[string]*router.Router
-	subApps  map[string]*SwaGin
-	rootPath string
+	Swagger      *swagger.Swagger
+	Routers      map[string]map[string]*router.Router
+	subApps      map[string]*SwaGin
+	rootPath     string
+	ErrorHandler router.ErrorHandlerFunc
 }
 
 func New(swagger *swagger.Swagger) *SwaGin {
@@ -34,10 +36,16 @@ func New(swagger *swagger.Swagger) *SwaGin {
 	}
 	return f
 }
-
+func (g *SwaGin) WithErrorHandler(handler router.ErrorHandlerFunc) *SwaGin {
+	g.ErrorHandler = handler
+	return g
+}
 func (g *SwaGin) Mount(path string, app *SwaGin) {
 	app.rootPath = path
 	app.Engine = g.Engine
+	if app.ErrorHandler == nil {
+		app.ErrorHandler = g.ErrorHandler
+	}
 	app.Swagger.Servers = append(app.Swagger.Servers, &openapi3.Server{
 		URL: path,
 	})
@@ -97,8 +105,18 @@ func (g *SwaGin) init() {
 	if g.Swagger == nil {
 		return
 	}
+	gin.DisableBindValidation()
 	g.Engine.GET(g.fullPath(g.Swagger.OpenAPIUrl), func(c *gin.Context) {
-		c.JSON(http.StatusOK, g.Swagger)
+		if strings.HasSuffix(g.Swagger.OpenAPIUrl, ".yml") ||
+			strings.HasSuffix(g.Swagger.OpenAPIUrl, ".yaml") {
+			y, err := g.Swagger.MarshalYAML()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, map[string]string{"status": err.Error()})
+			}
+			c.String(http.StatusOK, string(y))
+		} else {
+			c.JSON(http.StatusOK, g.Swagger)
+		}
 	})
 	g.Engine.GET(g.fullPath(g.Swagger.DocsUrl), func(c *gin.Context) {
 		options := `{}`
@@ -136,6 +154,9 @@ func (g *SwaGin) initRouters() {
 	for path, m := range g.Routers {
 		path = g.fullPath(path)
 		for method, r := range m {
+			if r.ErrorHandler == nil {
+				r.WithErrorHandler(g.ErrorHandler)
+			}
 			handlers := r.GetHandlers()
 			if method == http.MethodGet {
 				g.Engine.GET(path, handlers...)
