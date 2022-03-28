@@ -15,4 +15,5 @@
 # vendor/
 .idea
 
+# VScode configuration file
 .vscode
