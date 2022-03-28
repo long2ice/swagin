@@ -3,8 +3,11 @@ package swagin
 import (
 	"embed"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -184,4 +187,30 @@ func (g *SwaGin) Run(addr ...string) error {
 		s.init()
 	}
 	return g.Engine.Run(addr...)
+}
+
+func (g *SwaGin) StartGraceful(addr ...string) (*http.Server, error) {
+	g.init()
+	for _, s := range g.subApps {
+		s.init()
+	}
+	var address string
+	if len(addr) == 0 {
+		address = ":" + os.Getenv("PORT")
+		if address == ":" {
+			address = ":8080"
+		}
+	} else {
+		address = addr[0]
+	}
+	server := &http.Server{
+		Addr:    address,
+		Handler: g.Engine,
+	}
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			panic(fmt.Sprintf("ERROR starting server: %v", err))
+		}
+	}()
+	return server, nil
 }
