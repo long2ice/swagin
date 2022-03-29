@@ -1,0 +1,29 @@
+name: Default
+vars:
+  URL: "http://127.0.0.1:8080"
+
+testcases:
+
+- name: NoModel_Nominal
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/noModel"
+      method: GET
+      json:
+        authorization: test
+        token: test
+    response:
+      statusCode: 200
+      json:
+        authorization: test
+        token: test
+
+- name: NoModel_Bad_Request
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/noModel"
+      method: GET
+    response:
+      statusCode: 400
