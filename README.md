@@ -231,9 +231,12 @@ This will start example application and run integration tests in directory *exam
 You can also run integration tests on running example application with:
 
 ```
+$ cd examples
 $ go build
 $ ./examples &
+$ PID=$!
 $ venom run test/*.yml
+$ kill $PID
 ```
 
 ## ThanksTo
