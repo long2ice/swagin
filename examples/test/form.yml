@@ -1,0 +1,159 @@
+name: Form
+vars:
+  URL: "http://127.0.0.1:8080"
+
+testcases:
+
+################################## PUT FORM ####################################
+
+- name: put_form
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form?id=1"
+      method: PUT
+      headers:
+        Accept: "application/json"
+        Authorization: "Bearer test"
+        Content-Type: "application/json"
+      json:
+        name: "test"
+        list: [1]
+    response:
+      statusCode: 200
+      json:
+        id: 1
+        name: "test"
+        list: [1]
+
+- name: put_form_missing_url_parameter
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form"
+      method: PUT
+      headers:
+        Accept: "application/json"
+        Authorization: "Bearer test"
+        Content-Type: "application/json"
+      json:
+        name: "test"
+        list: [1]
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestForm.ID' Error:Field validation for 'ID' failed on the 'required' tag"
+
+- name: put_form_missing_json_field
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form?id=1"
+      method: PUT
+      headers:
+        Accept: "application/json"
+        Authorization: "Bearer test"
+        Content-Type: "application/json"
+      json:
+        list: [1]
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestForm.Name' Error:Field validation for 'Name' failed on the 'required' tag"
+
+################################ POST FORM ENCODED #############################
+
+- name: post_form_encoded
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/encoded?id=1"
+      method: POST
+      headers:
+        Accept: "*/*"
+        Authorization: "Bearer test"
+        Content-Type: "application/x-www-form-urlencoded"
+      body: "list=1&name=test"
+    response:
+      statusCode: 200
+      json:
+        id: 1
+        name: "test"
+        list: [1]
+
+- name: post_form_encoded_missing_url_parameter
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/encoded"
+      method: POST
+      headers:
+        Accept: "*/*"
+        Authorization: "Bearer test"
+        Content-Type: "application/x-www-form-urlencoded"
+      body: "list=1&name=test"
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestForm.ID' Error:Field validation for 'ID' failed on the 'required' tag"
+
+- name: post_form_encoded_missing_form_field
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/encoded?id=1"
+      method: POST
+      headers:
+        Accept: "*/*"
+        Authorization: "Bearer test"
+        Content-Type: "application/x-www-form-urlencoded"
+      body: "list=1"
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestForm.Name' Error:Field validation for 'Name' failed on the 'required' tag"
+
+################################ POST FORM FILE ################################
+
+- name: post_form_file
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/file"
+      method: POST
+      headers:
+        Accept: "*/*"
+        Authorization: "Bearer test"
+      multipart_form:
+        file: "@main.go"
+    response:
+      statusCode: 200
+      json:
+        file: 'main.go'
+
+- name: post_form_file_missing_file
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/file"
+      method: POST
+      headers:
+        Accept: "*/*"
+        Authorization: "Bearer test"
+    response:
+      statusCode: 400
+      json:
+        error: 'EOF'
+
+- name: post_form_file_missing_auth
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/form/file"
+      method: POST
+      headers:
+        Accept: "*/*"
+      multipart_form:
+        file: "@main.go"
+    response:
+      statusCode: 401
