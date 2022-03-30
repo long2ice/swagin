@@ -10,7 +10,7 @@ import (
 func TestIntegration(t *testing.T) {
 	go main()
 	WaitServer()
-	out, err := exec.Command("venom", "run", "test/query.yml").Output()
+	out, err := exec.Command("venom", "run", "test/*.yml").CombinedOutput()
 	if err != nil {
 		t.Fatalf("running venom: %s", string(out))
 	}
