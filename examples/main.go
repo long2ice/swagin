@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/long2ice/swagin"
 	"github.com/long2ice/swagin/security"
+	"log"
 )
 
 func main() {
@@ -35,6 +36,6 @@ func main() {
 	formGroup.POST("/file", file)
 
 	if err := app.Run(); err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 }

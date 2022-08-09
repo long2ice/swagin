@@ -248,8 +248,14 @@ func (swagger *Swagger) getParametersByModel(model interface{}) openapi3.Paramet
 	if model == nil {
 		return parameters
 	}
-	type_ := reflect.TypeOf(model).Elem()
-	value_ := reflect.ValueOf(model).Elem()
+	type_ := reflect.TypeOf(model)
+	if type_.Kind() == reflect.Ptr {
+		type_ = type_.Elem()
+	}
+	value_ := reflect.ValueOf(model)
+	if value_.Kind() == reflect.Ptr {
+		value_ = value_.Elem()
+	}
 	for i := 0; i < type_.NumField(); i++ {
 		field := type_.Field(i)
 		value := value_.Field(i)
@@ -317,7 +323,7 @@ func (swagger *Swagger) getPaths() openapi3.Paths {
 			if r.Exclude {
 				continue
 			}
-			model := r.API
+			model := r.Model
 			operation := &openapi3.Operation{
 				Tags:        r.Tags,
 				OperationID: r.OperationID,

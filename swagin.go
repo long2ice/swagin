@@ -18,11 +18,13 @@ var templates embed.FS
 
 type SwaGin struct {
 	*gin.Engine
-	Swagger      *swagger.Swagger
-	Routers      map[string]map[string]*router.Router
-	subApps      map[string]*SwaGin
-	rootPath     string
-	ErrorHandler router.ErrorHandlerFunc
+	Swagger        *swagger.Swagger
+	Routers        map[string]map[string]*router.Router
+	subApps        map[string]*SwaGin
+	rootPath       string
+	ErrorHandler   router.ErrorHandlerFunc
+	beforeInitFunc func()
+	afterInitFunc  func()
 }
 
 func New(swagger *swagger.Swagger) *SwaGin {
@@ -151,9 +153,6 @@ func (g *SwaGin) initRouters() {
 	for path, m := range g.Routers {
 		path = g.fullPath(path)
 		for method, r := range m {
-			if r.ErrorHandler == nil {
-				r.WithErrorHandler(g.ErrorHandler)
-			}
 			handlers := r.GetHandlers()
 			if method == http.MethodGet {
 				g.Engine.GET(path, handlers...)
@@ -175,13 +174,28 @@ func (g *SwaGin) initRouters() {
 		}
 	}
 }
-func (g *SwaGin) fullPath(path string) string {
-	return g.rootPath + path
-}
-func (g *SwaGin) Run(addr ...string) error {
+func (g *SwaGin) Init() {
 	g.init()
 	for _, s := range g.subApps {
 		s.init()
+	}
+}
+func (g *SwaGin) fullPath(path string) string {
+	return g.rootPath + path
+}
+func (g *SwaGin) BeforeInit(f func()) {
+	g.beforeInitFunc = f
+}
+func (g *SwaGin) AfterInit(f func()) {
+	g.afterInitFunc = f
+}
+func (g *SwaGin) Run(addr ...string) error {
+	if g.beforeInitFunc != nil {
+		g.beforeInitFunc()
+	}
+	g.init()
+	if g.afterInitFunc != nil {
+		g.afterInitFunc()
 	}
 	return g.Engine.Run(addr...)
 }

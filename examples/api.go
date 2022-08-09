@@ -8,62 +8,62 @@ import (
 	"net/http"
 )
 
-type TestQuery struct {
+type TestQueryReq struct {
 	Name     string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 	Token    string `header:"token" validate:"required" json:"token" default:"test"`
 	Optional string `query:"optional" json:"optional"`
 }
 
-func (t *TestQuery) Handler(c *gin.Context) {
+func TestQuery(c *gin.Context, req TestQueryReq) {
 	user := c.MustGet(security.Credentials).(*security.User)
 	fmt.Println(user)
-	c.JSON(http.StatusOK, t)
+	c.JSON(http.StatusOK, req)
 }
 
-type TestQueryList struct {
+type TestQueryListReq struct {
 	Name  string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 	Token string `header:"token" validate:"required" json:"token" default:"test"`
 }
 
-func (t *TestQueryList) Handler(c *gin.Context) {
+func TestQueryList(c *gin.Context, req TestQueryListReq) {
 	user := c.MustGet(security.Credentials).(*security.User)
 	fmt.Println(user)
-	c.JSON(http.StatusOK, []TestQueryList{*t})
+	c.JSON(http.StatusOK, []TestQueryListReq{req})
 }
 
-type TestQueryPath struct {
+type TestQueryPathReq struct {
 	Name  string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 	ID    int    `uri:"id" validate:"required" json:"id" description:"id of model" default:"1"`
 	Token string `header:"token" validate:"required" json:"token" default:"test"`
 }
 
-func (t *TestQueryPath) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t)
+func TestQueryPath(c *gin.Context, req TestQueryPathReq) {
+	c.JSON(http.StatusOK, req)
 }
 
-type TestForm struct {
+type TestFormReq struct {
 	ID   int    `query:"id" validate:"required" json:"id" description:"id of model" default:"1"`
 	Name string `form:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 	List []int  `form:"list" validate:"required" json:"list" description:"list of model"`
 }
 
-func (t *TestForm) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t)
+func TestForm(c *gin.Context, req TestFormReq) {
+	c.JSON(http.StatusOK, req)
 }
 
-type TestNoModel struct {
+type TestNoModelReq struct {
 	Authorization string `header:"authorization" validate:"required" json:"authorization" default:"authorization"`
 	Token         string `header:"token" binding:"required" json:"token" default:"token"`
 }
 
-func (t *TestNoModel) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, t)
+func TestNoModel(c *gin.Context, req TestNoModelReq) {
+	c.JSON(http.StatusOK, req)
 }
 
-type TestFile struct {
+type TestFileReq struct {
 	File *multipart.FileHeader `form:"file" validate:"required" description:"file upload"`
 }
 
-func (t *TestFile) Handler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"file": t.File.Filename})
+func TestFile(c *gin.Context, req TestFileReq) {
+	c.JSON(http.StatusOK, gin.H{"file": req.File.Filename})
 }

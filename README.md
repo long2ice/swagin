@@ -75,8 +75,13 @@ type TestQuery struct {
   Name string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
 }
 
-func (t *TestQuery) Handler(c *gin.Context) {
-  c.JSON(http.StatusOK, t)
+func TestQuery(c *gin.Context, req TestQueryReq) error {
+  return c.JSON(req)
+}
+
+// TestQueryNoReq if there is no req body
+func TestQueryNoReq(c *gin.Context) {
+  c.JSON(http.StatusOK, "{}")
 }
 ```
 
@@ -91,7 +96,15 @@ Then write router with some docs configuration and api.
 package examples
 
 var query = router.New(
-  &TestQuery{},
+  TestQuery,
+  router.Summary("Test Query"),
+  router.Description("Test Query Model"),
+  router.Tags("Test"),
+)
+
+// if there is no req body
+var query = router.NewX(
+  TestQueryNoReq,
   router.Summary("Test Query"),
   router.Description("Test Query Model"),
   router.Tags("Test"),
@@ -114,7 +127,7 @@ Current there is five kinds of security policies.
 package main
 
 var query = router.New(
-  &TestQuery{},
+  TestQuery,
   router.Summary("Test query"),
   router.Description("Test query model"),
   router.Security(&security.Basic{}),
@@ -126,7 +139,7 @@ Then you can get the authentication string by `context.MustGet(security.Credenti
 ```go
 package main
 
-func (t *TestQuery) Handler(c *gin.Context) {
+func TestQuery(c *gin.Context) {
   user := c.MustGet(security.Credentials).(*security.User)
   fmt.Println(user)
   c.JSON(http.StatusOK, t)

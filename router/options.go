@@ -75,9 +75,3 @@ func ContentType(contentType string, contentTypeType ContentTypeType) Option {
 		}
 	}
 }
-
-func ErrorHandler(f ErrorHandlerFunc) Option {
-	return func(router *Router) {
-		router.ErrorHandler = f
-	}
-}

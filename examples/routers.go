@@ -8,54 +8,54 @@ import (
 
 var (
 	query = router.New(
-		&TestQuery{},
+		TestQuery,
 		router.Summary("Test query"),
 		router.Description("Test query model"),
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model:       TestQuery{},
+				Model:       TestQueryReq{},
 				Description: "response model description",
 			},
 		}),
 	)
 	queryList = router.New(
-		&TestQueryList{},
+		TestQueryList,
 		router.Summary("Test query list"),
 		router.Description("Test query list model"),
 		router.Security(&security.Basic{}),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: []TestQueryList{},
+				Model: []TestQueryListReq{},
 			},
 		}),
 	)
 	noModel = router.New(
-		&TestNoModel{},
+		TestNoModel,
 		router.Summary("Test no model"),
 		router.Description("Test no model"),
 	)
 	queryPath = router.New(
-		&TestQueryPath{},
+		TestQueryPath,
 		router.Summary("Test query path"),
 		router.Description("Test query path model"),
 	)
 	formEncode = router.New(
-		&TestForm{},
+		TestForm,
 		router.Summary("Test form"),
 		router.ContentType(binding.MIMEPOSTForm, router.ContentTypeRequest),
 	)
 	body = router.New(
-		&TestForm{},
+		TestForm,
 		router.Summary("Test json body"),
 		router.Responses(router.Response{
 			"200": router.ResponseItem{
-				Model: TestForm{},
+				Model: TestFormReq{},
 			},
 		}),
 	)
 	file = router.New(
-		&TestFile{},
+		TestFile,
 		router.Summary("Test file upload"),
 		router.ContentType(binding.MIMEMultipartPOSTForm, router.ContentTypeRequest),
 	)

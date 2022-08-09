@@ -46,7 +46,6 @@ func (g *Group) Handle(path string, method string, r *router.Router) {
 	router.Handlers(g.Handlers...)(r)
 	router.Tags(g.Tags...)(r)
 	router.Security(g.Securities...)(r)
-	router.ErrorHandler(g.ErrorHandler)(r)
 	g.SwaGin.Handle(g.Path+path, method, r)
 }
 func (g *Group) GET(path string, router *router.Router) {
