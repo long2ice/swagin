@@ -66,7 +66,7 @@ func NewSwagger() *swagger.Swagger {
 
 ### Write API
 
-Then make api struct which implement `router.IAPI`.
+Then write a router function.
 
 ```go
 package examples
@@ -79,7 +79,7 @@ func TestQuery(c *gin.Context, req TestQueryReq) error {
   return c.JSON(req)
 }
 
-// TestQueryNoReq if there is no req body
+// TestQueryNoReq if there is no req body and query
 func TestQueryNoReq(c *gin.Context) {
   c.JSON(http.StatusOK, "{}")
 }
@@ -102,7 +102,7 @@ var query = router.New(
   router.Tags("Test"),
 )
 
-// if there is no req body
+// if there is no req body, you need use router.NewX
 var query = router.NewX(
   TestQueryNoReq,
   router.Summary("Test Query"),
