@@ -12,10 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build and Publish
-        uses: VaultVulp/gp-docker-action@1.1.8
+        uses: VaultVulp/gp-docker-action@1.6.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: swagin
+          custom-args: --platform=linux/arm64,linux/amd64
   deploy:
     runs-on: ubuntu-latest
     needs:
