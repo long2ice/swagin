@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build and Publish
         uses: VaultVulp/gp-docker-action@1.6.0
         with:
@@ -23,8 +23,12 @@ jobs:
       - build
     steps:
       - name: Deploy
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        uses: appleboy/ssh-action@master
         with:
-          args: rollout restart deployment swagin
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /root/docker/swagin/
+            docker compose up -d --pull always
