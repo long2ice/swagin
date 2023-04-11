@@ -43,9 +43,10 @@ func TestQueryPath(c *gin.Context, req TestQueryPathReq) {
 }
 
 type TestFormReq struct {
-	ID   int    `query:"id" validate:"required" json:"id" description:"id of model" default:"1"`
-	Name string `form:"name" validate:"required" json:"name" description:"name of model" default:"test"`
-	List []int  `form:"list" validate:"required" json:"list" description:"list of model"`
+	ID   int               `query:"id" validate:"required" json:"id" description:"id of model" default:"1"`
+	Name string            `form:"name" validate:"required" json:"name" description:"name of model" default:"test"`
+	List []int             `form:"list" validate:"required" json:"list" description:"list of model"`
+	Map  map[string]string `form:"map" validate:"required" json:"map" description:"a map"`
 }
 
 func TestForm(c *gin.Context, req TestFormReq) {
