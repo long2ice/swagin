@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/long2ice/swagin/security"
 	"mime/multipart"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/long2ice/swagin/security"
 )
 
 type TestQueryReq struct {
