@@ -18,9 +18,7 @@ type Option func(*Group)
 
 func Handlers(handlers ...gin.HandlerFunc) Option {
 	return func(g *Group) {
-		for _, handler := range handlers {
-			g.Handlers = append(g.Handlers, handler)
-		}
+		g.Handlers = append(g.Handlers, handlers...)
 	}
 }
 
@@ -36,9 +34,7 @@ func Tags(tags ...string) Option {
 
 func Security(securities ...security.ISecurity) Option {
 	return func(g *Group) {
-		for _, s := range securities {
-			g.Securities = append(g.Securities, s)
-		}
+		g.Securities = append(g.Securities, securities...)
 	}
 }
 
