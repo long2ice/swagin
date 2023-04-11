@@ -187,29 +187,31 @@ func (swagger *Swagger) getResponseSchemaByModel(model interface{}) *openapi3.Sc
 	if type_.Kind() == reflect.Struct {
 		for i := 0; i < type_.NumField(); i++ {
 			field := type_.Field(i)
-			value := value_.Field(i)
-			fieldSchema := swagger.getSchemaByType(value.Interface(), false)
-			tags, err := structtag.Parse(string(field.Tag))
-			if err != nil {
-				panic(err)
+			if field.IsExported() && value_.IsValid() {
+				value := value_.Field(i)
+				fieldSchema := swagger.getSchemaByType(value.Interface(), false)
+				tags, err := structtag.Parse(string(field.Tag))
+				if err != nil {
+					panic(err)
+				}
+				tag, err := tags.Get("json")
+				if err != nil {
+					continue
+				}
+				bindingTag, err := tags.Get(BINDING)
+				if err == nil && bindingTag.Name == "required" {
+					schema.Required = append(schema.Required, tag.Name)
+				}
+				descriptionTag, err := tags.Get(DESCRIPTION)
+				if err == nil {
+					fieldSchema.Description = descriptionTag.Name
+				}
+				defaultTag, err := tags.Get(DEFAULT)
+				if err == nil {
+					fieldSchema.Default = defaultTag.Name
+				}
+				schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
 			}
-			tag, err := tags.Get("json")
-			if err != nil {
-				continue
-			}
-			bindingTag, err := tags.Get(BINDING)
-			if err == nil && bindingTag.Name == "required" {
-				schema.Required = append(schema.Required, tag.Name)
-			}
-			descriptionTag, err := tags.Get(DESCRIPTION)
-			if err == nil {
-				fieldSchema.Description = descriptionTag.Name
-			}
-			defaultTag, err := tags.Get(DEFAULT)
-			if err == nil {
-				fieldSchema.Default = defaultTag.Name
-			}
-			schema.Properties[tag.Name] = openapi3.NewSchemaRef("", fieldSchema)
 		}
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
