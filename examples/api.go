@@ -9,9 +9,10 @@ import (
 )
 
 type TestQueryReq struct {
-	Name     string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
-	Token    string `header:"token" validate:"required" json:"token" default:"test"`
-	Optional string `query:"optional" json:"optional"`
+	unexported string
+	Name       string `query:"name" validate:"required" json:"name" description:"name of model" default:"test"`
+	Token      string `header:"token" validate:"required" json:"token" default:"test"`
+	Optional   string `query:"optional" json:"optional"`
 }
 
 func TestQuery(c *gin.Context, req TestQueryReq) {
