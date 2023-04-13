@@ -230,6 +230,28 @@ func main() {
 
 ```
 
+## Integration Tests
+
+First install Venom at <https://github.com/intercloud/venom/releases>. Then you can run integration tests as follows:
+
+```
+$ cd examples
+$ go test
+```
+
+This will start example application and run integration tests in directory *examples/test* against it.
+
+You can also run integration tests on running example application with:
+
+```
+$ cd examples
+$ go build
+$ ./examples &
+$ PID=$!
+$ venom run test/*.yml
+$ kill $PID
+```
+
 ## ThanksTo
 
 - [kin-openapi](https://github.com/getkin/kin-openapi), OpenAPI 3.0 implementation for Go (parsing, converting,
