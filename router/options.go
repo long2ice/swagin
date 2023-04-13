@@ -9,9 +9,7 @@ type Option func(router *Router)
 
 func Security(securities ...security.ISecurity) Option {
 	return func(router *Router) {
-		for _, s := range securities {
-			router.Securities = append(router.Securities, s)
-		}
+		router.Securities = append(router.Securities, securities...)
 	}
 }
 func Responses(response Response) Option {

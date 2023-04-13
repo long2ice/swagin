@@ -64,8 +64,7 @@ func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity)
 }
 func (swagger *Swagger) getSchemaByType(t interface{}, request bool) *openapi3.Schema {
 	var schema *openapi3.Schema
-	var m float64
-	m = float64(0)
+	var m = float64(0)
 	switch t.(type) {
 	case int, int8, int16:
 		schema = openapi3.NewIntegerSchema()
