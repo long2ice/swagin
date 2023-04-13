@@ -1,0 +1,157 @@
+name: Query
+vars:
+  URL: "http://127.0.0.1:8080"
+
+testcases:
+
+################################ DELETE QUERY ##################################
+
+- name: delete_query
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query?name=test"
+      method: DELETE
+      headers:
+        Accept: "application/json"
+        Token: "test"
+        Authorization: "Basic Zm9vOmJhcg=="
+    response:
+      statusCode: 200
+      json:
+        name: "test"
+        token: "test"
+        optional: ""
+
+- name: delete_query_no_url_parameter
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query"
+      method: DELETE
+      headers:
+        Accept: "application/json"
+        Token: "test"
+        Authorization: "Basic Zm9vOmJhcg=="
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestQuery.Name' Error:Field validation for 'Name' failed on the 'required' tag"
+
+- name: delete_query_no_authorization
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query?name=test"
+      method: DELETE
+      headers:
+        Accept: "application/json"
+        Token: "test"
+    response:
+      statusCode: 401
+      body:
+
+- name: delete_query_no_token
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query?name=test"
+      method: DELETE
+      headers:
+        Accept: "application/json"
+        Authorization: "Basic Zm9vOmJhcg=="
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestQuery.Token' Error:Field validation for 'Token' failed on the 'required' tag"
+
+############################### GET QUERY LIST #################################
+
+- name: get_query_list
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/list?name=test"
+      method: GET
+      headers:
+        Accept: "application/json"
+        Token: "test"
+        Authorization: "Basic Zm9vOmJhcg=="
+    response:
+      statusCode: 200
+      json:
+      - name: "test"
+        token: "test"
+
+- name: get_query_list_no_url_parameter
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/list"
+      method: GET
+      headers:
+        Accept: "application/json"
+        Token: "test"
+        Authorization: "Basic Zm9vOmJhcg=="
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestQueryList.Name' Error:Field validation for 'Name' failed on the 'required' tag"
+
+- name: get_query_list_no_authorization
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/list?name=test"
+      method: GET
+      headers:
+        Accept: "application/json"
+        Token: "test"
+    response:
+      statusCode: 401
+      body: null
+
+################################ GET QUERY ID ##################################
+
+- name: get_query_id
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/1?name=test"
+      method: GET
+      headers:
+        Accept: "*/*"
+        Token: "test"
+    response:
+      statusCode: 200
+      json:
+        name: "test"
+        id: 1
+        token: "test"
+
+- name: get_query_id_missing_token
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/1?name=test"
+      method: GET
+      headers:
+        Accept: "*/*"
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestQueryPath.Token' Error:Field validation for 'Token' failed on the 'required' tag"
+
+- name: get_query_id_missing_url_parameter
+  steps:
+  - type: tavern
+    request:
+      url: "{{.URL}}/query/1"
+      method: GET
+      headers:
+        Accept: "*/*"
+        Token: "test"
+    response:
+      statusCode: 400
+      json:
+        error: "Key: 'TestQueryPath.Name' Error:Field validation for 'Name' failed on the 'required' tag"

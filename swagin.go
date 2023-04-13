@@ -3,8 +3,11 @@ package swagin
 import (
 	"embed"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -28,7 +31,14 @@ type SwaGin struct {
 }
 
 func New(swagger *swagger.Swagger) *SwaGin {
-	f := &SwaGin{Engine: gin.New(), Swagger: swagger, Routers: make(map[string]map[string]*router.Router), subApps: make(map[string]*SwaGin)}
+	engine := gin.New()
+	engine.Use(gin.Recovery())
+	f := &SwaGin{
+		Engine:  engine,
+		Swagger: swagger,
+		Routers: make(map[string]map[string]*router.Router),
+		subApps: make(map[string]*SwaGin),
+	}
 	f.SetHTMLTemplate(template.Must(template.ParseFS(templates, "templates/*.html")))
 	if swagger != nil {
 		swagger.Routers = f.Routers
@@ -198,4 +208,30 @@ func (g *SwaGin) Run(addr ...string) error {
 		g.afterInitFunc()
 	}
 	return g.Engine.Run(addr...)
+}
+
+func (g *SwaGin) StartGraceful(addr ...string) (*http.Server, error) {
+	g.init()
+	for _, s := range g.subApps {
+		s.init()
+	}
+	var address string
+	if len(addr) == 0 {
+		address = ":" + os.Getenv("PORT")
+		if address == ":" {
+			address = ":8080"
+		}
+	} else {
+		address = addr[0]
+	}
+	server := &http.Server{
+		Addr:    address,
+		Handler: g.Engine,
+	}
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			panic(fmt.Sprintf("ERROR starting server: %v", err))
+		}
+	}()
+	return server, nil
 }

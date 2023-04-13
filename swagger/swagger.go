@@ -64,8 +64,7 @@ func (swagger *Swagger) getSecurityRequirements(securities []security.ISecurity)
 }
 func (swagger *Swagger) getSchemaByType(t interface{}, request bool) *openapi3.Schema {
 	var schema *openapi3.Schema
-	var m float64
-	m = float64(0)
+	var m = float64(0)
 	switch t.(type) {
 	case int, int8, int16:
 		schema = openapi3.NewIntegerSchema()
@@ -153,6 +152,9 @@ func (swagger *Swagger) getRequestSchemaByModel(model interface{}) *openapi3.Sch
 		}
 	} else if type_.Kind() == reflect.Slice {
 		schema = openapi3.NewArraySchema()
+		schema.Items = &openapi3.SchemaRef{Value: swagger.getRequestSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
+	} else if type_.Kind() == reflect.Map {
+		schema = openapi3.NewObjectSchema()
 		schema.Items = &openapi3.SchemaRef{Value: swagger.getRequestSchemaByModel(reflect.New(type_.Elem()).Elem().Interface())}
 	} else {
 		schema = swagger.getSchemaByType(model, true)
