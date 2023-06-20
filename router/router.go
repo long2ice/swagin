@@ -2,14 +2,14 @@ package router
 
 import (
 	"container/list"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
 	"reflect"
 
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
+
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	"github.com/long2ice/swagin/security"
 	"github.com/mcuadros/go-defaults"
 )
@@ -35,72 +35,70 @@ type Router struct {
 	Response            Response
 }
 
+const requestKey = "request"
+
 var validate = validator.New()
 
-func BindModel(req interface{}) gin.HandlerFunc {
+func BindModel(model interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		model := reflect.New(reflect.TypeOf(req).Elem()).Interface()
-		if err := c.ShouldBindHeader(model); err != nil {
+		req := reflect.New(reflect.TypeOf(model).Elem()).Interface()
+		if err := c.ShouldBindHeader(req); err != nil {
 			log.Panic(err)
 		}
-		if err := CookiesParser(c, model); err != nil {
+		if err := CookiesParser(c, req); err != nil {
 			log.Panic(err)
 		}
-		if err := c.ShouldBindWith(model, Query); err != nil {
+		if err := c.ShouldBindWith(req, Query); err != nil {
 			log.Panic(err)
 		}
 		if c.Request.Method == http.MethodPost || c.Request.Method == http.MethodPut {
 			switch c.Request.Header.Get("Content-Type") {
 			case binding.MIMEMultipartPOSTForm:
-				if err := c.ShouldBindWith(model, binding.FormMultipart); err != nil {
+				if err := c.ShouldBindWith(req, binding.FormMultipart); err != nil {
 					log.Panic(err)
 
 				}
 			case binding.MIMEJSON:
-				if err := c.ShouldBindWith(model, binding.JSON); err != nil {
+				if err := c.ShouldBindWith(req, binding.JSON); err != nil {
 					log.Panic(err)
-
 				}
 			case binding.MIMEXML:
-				if err := c.ShouldBindWith(model, binding.XML); err != nil {
+				if err := c.ShouldBindWith(req, binding.XML); err != nil {
 					log.Panic(err)
 
 				}
 			case binding.MIMEPOSTForm:
-				if err := c.ShouldBindWith(model, binding.Form); err != nil {
+				if err := c.ShouldBindWith(req, binding.Form); err != nil {
 					log.Panic(err)
 
 				}
 			case binding.MIMEYAML:
-				if err := c.ShouldBindWith(model, binding.YAML); err != nil {
+				if err := c.ShouldBindWith(req, binding.YAML); err != nil {
 					log.Panic(err)
 
 				}
 			case binding.MIMEPROTOBUF:
-				if err := c.ShouldBindWith(model, binding.ProtoBuf); err != nil {
+				if err := c.ShouldBindWith(req, binding.ProtoBuf); err != nil {
 					log.Panic(err)
 
 				}
 			case binding.MIMEMSGPACK:
-				if err := c.ShouldBindWith(model, binding.MsgPack); err != nil {
+				if err := c.ShouldBindWith(req, binding.MsgPack); err != nil {
 					log.Panic(err)
 
 				}
 			}
 		}
-		if err := c.ShouldBindUri(model); err != nil {
+		if err := c.ShouldBindUri(req); err != nil {
 			log.Panic(err)
 
 		}
-		defaults.SetDefaults(model)
-		if err := validate.Struct(model); err != nil {
+		defaults.SetDefaults(req)
+		if err := validate.Struct(req); err != nil {
 			log.Panic(err)
 
 		}
-		if err := copier.Copy(req, model); err != nil {
-			log.Panic(err)
-
-		}
+		c.Set(requestKey, req)
 		c.Next()
 	}
 }
@@ -139,7 +137,11 @@ func New[T Model, F func(c *gin.Context, req T)](f F, options ...Option) *Router
 		Handlers: list.New(),
 		Response: make(Response),
 		API: func(ctx *gin.Context) {
-			f(ctx, model)
+			req, ok := ctx.Get(requestKey)
+			if !ok {
+				log.Panic("Could not get request from context")
+			}
+			f(ctx, *(req.(*T)))
 		},
 		Model: model,
 	}
